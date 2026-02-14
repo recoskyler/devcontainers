@@ -2,14 +2,6 @@
 
 Docker-based dev containers with Claude Code, MCP servers, and common tooling pre-installed. Each image targets a different stack/project type.
 
-## Naming Scheme
-
-```
-{os-release}-{capabilities}-{assistant}
-
-# e.g. trixie-bun-nvm-uv-claude
-```
-
 ## Images
 
 Shared Dockerfiles live in `templates/`. Variants that only differ by base image tag use the same template with a different `VARIANT` build arg.
@@ -30,33 +22,27 @@ Shared Dockerfiles live in `templates/`. Variants that only differ by base image
 - **MCP servers**: Serena, Playwright, Context7, Automem, Figma
 - **GSD** (Get Shit Done for Claude Code)
 - **Playwright** + Chrome
-- **CLI tools**: git, curl, wget, vim, nano, jq, tmux, xclip, openssh-client, gnupg, cmake, less, unzip
+- **CLI tools**: git, curl, wget, vim, nano, jq, tmux, xclip, openssh-client, gnupg, cmake, less, unzip, gh, pnpm, tsx
+- **ttyd** (web terminal)
 - **Database clients**: postgresql-client, default-mysql-client, redis-tools
 - **ntfy** notification hooks (Notification + Stop events)
 
-### Bun images (`trixie-bun-*`)
+### Bun images (`trixie-bun-nvm-uv-claude`)
 
 - **Bun** runtime
-- **Stripe CLI** + **GH CLI**
-- **ttyd** (web terminal)
-- happy-coder, @zed-industries/claude-code-acp
-- pnpm, tsx
+- **Stripe CLI**
 
-### PHP images (`trixie-php-*`)
+### PHP images (`trixie-php-nvm-uv-claude`)
 
 - **PHP** (from MS devcontainers base)
 - **Composer**
 - PHP Redis extension, pdo_mysql, pcntl
-- **GH CLI**
-- **ttyd** (web terminal)
-- x11vnc, xvfb
-- pnpm, tsx
 
 ### Noble image (`noble-uv-vnc-claude`)
 
 - **Ubuntu Noble** base
 - **Python venv** setup via UV (default: 3.13)
-- x11vnc, xvfb (VNC support)
+- x11vnc, xvfb
 
 ## Environment Variables
 

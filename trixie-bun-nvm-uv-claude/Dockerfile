@@ -104,7 +104,7 @@ RUN npm -v
 RUN npm install -g npm@latest
 
 # Install Claude Code and Opencode globally
-RUN npm install -g tsx pnpm happy-coder @zed-industries/claude-code-acp
+RUN npm install -g tsx pnpm
 
 # ttyd
 

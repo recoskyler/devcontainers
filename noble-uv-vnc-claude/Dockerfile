@@ -17,6 +17,7 @@ RUN apt-get update \
     ca-certificates \
     git \
     curl \
+    bash \
     wget \
     vim \
     openssh-client \
@@ -52,6 +53,24 @@ RUN apt-get update \
     default-mysql-client \
     redis-tools
 
+# Install GH CLI
+RUN  mkdir -p -m 755 /etc/apt/keyrings
+
+RUN out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+	&& cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+	&& chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+
+RUN mkdir -p -m 755 /etc/apt/sources.list.d
+
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+
+RUN apt-get update \
+    && apt-get -y install --no-install-recommends gh \
+    && chsh -s $(which bash) ubuntu \
+    && echo 'export PS1="\e[01;32m\u\e[m:\e[01;34m\w\e[m\$ "' >> /home/ubuntu/.bashrc
+
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
 # nvm environment variables
 ENV NVM_DIR /usr/local/nvm
 
@@ -83,10 +102,27 @@ RUN npm -v
 
 RUN npm install -g npm@latest
 
+RUN npm install -g pnpm tsx
+
 # Playwright
 
 RUN npx playwright install --with-deps
 RUN npx playwright install --with-deps chrome
+
+# ttyd
+
+WORKDIR /tmp
+
+RUN git clone https://github.com/tsl0922/ttyd.git
+
+WORKDIR /tmp/ttyd
+
+RUN mkdir build
+
+WORKDIR /tmp/ttyd/build
+
+RUN cmake ..
+RUN make && make install
 
 # Claude Code
 

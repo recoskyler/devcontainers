@@ -21,10 +21,10 @@ jobs:
       matrix:
         include:
           - name: trixie-bun-nvm-uv-claude
-            dockerfile: templates/bun.Dockerfile
+            dockerfile: trixie-bun-nvm-uv-claude/Dockerfile
             variant: debian
           - name: trixie-php-nvm-uv-claude
-            dockerfile: templates/php.Dockerfile
+            dockerfile: trixie-php-nvm-uv-claude/Dockerfile
             variant: "8.3-trixie"
           - name: noble-uv-vnc-claude
             dockerfile: noble-uv-vnc-claude/Dockerfile
