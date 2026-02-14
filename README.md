@@ -4,13 +4,13 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
 
 ## Images
 
-Shared Dockerfiles live in `templates/`. Variants that only differ by base image tag use the same template with a different `VARIANT` build arg.
+Each image has its own Dockerfile in a folder named after the image.
 
-| Image | Base | Template | `VARIANT` |
-|-------|------|----------|-----------|
-| `noble-uv-vnc-claude` | `ubuntu:noble` | `noble-uv-vnc-claude/Dockerfile` | `noble` |
-| `trixie-bun-nvm-uv-claude` | `oven/bun:debian` | `templates/bun.Dockerfile` | `debian` |
-| `trixie-php-nvm-uv-claude` | `mcr.microsoft.com/devcontainers/php:8.3-trixie` | `templates/php.Dockerfile` | `8.3-trixie` |
+| Image | Base | `VARIANT` |
+|-------|------|-----------|
+| `noble-uv-vnc-claude` | `ubuntu:noble` | `noble` |
+| `trixie-bun-nvm-uv-claude` | `oven/bun:debian` | `debian` |
+| `trixie-php-nvm-uv-claude` | `mcr.microsoft.com/devcontainers/php:8.3-trixie` | `8.3-trixie` |
 
 ## What's Included
 
@@ -46,38 +46,32 @@ Shared Dockerfiles live in `templates/`. Variants that only differ by base image
 
 ## Environment Variables
 
-### Build-time variables
+### Build-time variables (GitHub repository variables)
 
-These are expanded during `docker build` and baked into the image. Pass with `--build-arg`:
+Set these in **Settings > Secrets and variables > Actions > Variables**. They are passed as `--build-arg` during CI builds:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `VARIANT` | per image | Base image tag (see Images table above) |
 | `NODE_VERSION` | `24.12.0` | Node.js version installed via NVM |
 | `PYTHON_VERSION` | `3` / `3.13` (noble) | Python version |
+| `NTFY_URL` | All images | [ntfy](https://ntfy.sh) server/topic URL for notification hooks |
+| `AUTOMEM_ENDPOINT` | All images | [Automem](https://github.com/verygoodplugins/mcp-automem) MCP server endpoint URL |
 
-### Build-time secrets
+> `VARIANT` is defined per image in the workflow matrix (see Images table above).
 
-These are expanded during `docker build` by MCP server configuration commands. They are baked into Claude Code's MCP config inside the image:
+### Build-time secrets (GitHub repository secrets)
+
+Set these in **Settings > Secrets and variables > Actions > Secrets**. They are expanded during `docker build` by MCP server configuration commands and baked into Claude Code's MCP config inside the image:
 
 | Variable | Required by | Description |
 |----------|-------------|-------------|
 | `CONTEXT7_API_KEY` | All images | [Context7](https://context7.com) MCP server API key |
-| `AUTOMEM_ENDPOINT` | All images | [Automem](https://github.com/verygoodplugins/mcp-automem) MCP server endpoint URL |
 | `AUTOMEM_API_KEY` | All images | [Automem](https://github.com/verygoodplugins/mcp-automem) MCP server API key |
-
-### Runtime environment variables
-
-These are resolved at container runtime when hooks or MCP servers execute:
-
-| Variable | Required by | Description |
-|----------|-------------|-------------|
 | `NTFY_TOKEN` | All images | [ntfy](https://ntfy.sh) authentication token for notification hooks |
-| `NTFY_URL` | All images | [ntfy](https://ntfy.sh) server/topic URL for notification hooks |
 
 ## CI/CD
 
-The GitHub Actions workflow (`.github/workflows/build.yml`) builds and pushes all images on every push to `main` or when a version tag is created.
+The GitHub Actions workflow (`.github/workflows/build.yml`) builds and pushes all images on every push to `latest` branch or when a version tag is created.
 
 Images are published to GHCR at `ghcr.io/<owner>/<image-name>`.
 
@@ -85,16 +79,8 @@ Images are published to GHCR at `ghcr.io/<owner>/<image-name>`.
 
 | Trigger | Tag(s) |
 |---------|--------|
-| Push to `main` | `latest` |
+| Push to `latest` | `latest` |
 | Git tag `v1.2.3` | `1.2.3`, `1.2` |
-
-### Required repository secrets
-
-Set these in **Settings > Secrets and variables > Actions** for the CI build:
-
-- `CONTEXT7_API_KEY`
-- `AUTOMEM_ENDPOINT`
-- `AUTOMEM_API_KEY`
 
 > `GITHUB_TOKEN` is provided automatically by GitHub Actions for GHCR authentication.
 
@@ -103,8 +89,9 @@ Set these in **Settings > Secrets and variables > Actions** for the CI build:
 ```bash
 # Build a specific image
 docker build \
-  -f templates/bun.Dockerfile \
+  -f trixie-bun-nvm-uv-claude/Dockerfile \
   --build-arg VARIANT=debian \
+  --build-arg NODE_VERSION=24.12.0 \
   --build-arg CONTEXT7_API_KEY=your-key \
   --build-arg AUTOMEM_ENDPOINT=your-endpoint \
   --build-arg AUTOMEM_API_KEY=your-key \
