@@ -79,7 +79,7 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 RUN echo "bun ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # nvm environment variables
-ENV NVM_DIR /usr/local/nvm
+ENV NVM_DIR=/usr/local/nvm
 
 RUN mkdir -p $NVM_DIR
 
@@ -94,8 +94,8 @@ RUN source $NVM_DIR/nvm.sh \
     && nvm use default
 
 # Add node and npm to path so the commands are available
-ENV NODE_PATH $NVM_DIR/v${NODE_VERSION}/lib/node_modules
-ENV PATH $NVM_DIR/versions/node/v${NODE_VERSION}/bin:$PATH
+ENV NODE_PATH=$NVM_DIR/v${NODE_VERSION}/lib/node_modules
+ENV PATH=$NVM_DIR/versions/node/v${NODE_VERSION}/bin:$PATH
 
 # Confirm installation
 RUN node -v
