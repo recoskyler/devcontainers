@@ -17,15 +17,9 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
         FROM ghcr.io/recoskyler/trixie-bun-nvm-uv-claude:latest
         ```
 
-        ```Dockerfile
-        FROM ghcr.io/recoskyler/noble-uv-vnc-claude:latest
-        ```
-
-        ```Dockerfile
-        FROM ghcr.io/recoskyler/trixie-php-nvm-uv-claude:latest
-        ```
-
     - In Docker Compose
+
+        `PROJECT_ROOT/.devcontainer/compose.yml`
 
         ```yaml
         services:
@@ -33,15 +27,17 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
                 image: ghcr.io/recoskyler/trixie-bun-nvm-uv-claude:latest
 
                 ports:
-                - "0.0.0.0:7681:7681" # TTYD
+                    - "0.0.0.0:7681:7681" # TTYD
+                    - '6901:6901' # VNC
 
                 networks:
-                - default
+                    - default
 
                 environment:
-                - ENABLE_TOOL_SEARCH=true
-                - ENABLE_EXPERIMENTAL_MCP_CLI=false
-                - CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS="1"
+                    - ENABLE_TOOL_SEARCH=true
+                    - ENABLE_EXPERIMENTAL_MCP_CLI=false
+                    - CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS="1"
+                    - DISPLAY=":0"
 
                 logging:
                     options:
@@ -49,13 +45,28 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
                         max-file: 3
 
                 volumes:
-                - ..:/workspace:cached
+                    - ..:/workspace:cached
 
-                # Overrides default command so things don't shut down after the process ends.
+                # Overrides default command so things don't
+                # shut down after the process ends
                 command: sleep infinity
 
-                # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
-                # (Adding the "ports" property to this file will not forward from a Codespace.)
+                # Playwright/Chrome/VNC might need the following options:
+
+                security_opt:
+                    - seccomp:unconfined
+
+                cap_add:
+                    - SYS_ADMIN
+                    - CAP_SYS_ADMIN
+                    - SYS_PTRACE
+                    - CAP_SYS_PTRACE
+                    - IPC_LOCK
+                    - SYS_NICE
+                    - CAP_SYS_NICE
+
+                ipc: host
+                init: true
 
         networks:
             default:
@@ -66,11 +77,11 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
 
 Each image has its own Dockerfile in a folder named after the image.
 
-| Image | Base | `VARIANT` |
-|-------|------|-----------|
-| `ghcr.io/recoskyler/noble-uv-vnc-claude:latest` | `ubuntu:noble` | `noble` |
-| `ghcr.io/recoskyler/trixie-bun-nvm-uv-claude:latest` | `oven/bun:debian` | `debian` |
-| `ghcr.io/recoskyler/trixie-php-nvm-uv-claude:latest` | `mcr.microsoft.com/devcontainers/php:8.3-trixie` | `8.3-trixie` |
+| Image | Base | `VARIANT` | User | Home |
+|-------|------|-----------|------|------|
+| `ghcr.io/recoskyler/noble-uv-vnc-claude:latest` | `ubuntu:noble` | `noble` | `ubuntu` | `/home/ubuntu` |
+| `ghcr.io/recoskyler/trixie-bun-nvm-uv-claude:latest` | `oven/bun:debian` | `debian` | `bun` | `/home/bun` |
+| `ghcr.io/recoskyler/trixie-php-nvm-uv-claude:latest` | `mcr.microsoft.com/devcontainers/php:8.3-trixie` | `8.3-trixie` | `vscode` | `home/vscode` |
 
 ## What's Included
 
