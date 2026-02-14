@@ -90,11 +90,13 @@ RUN npx playwright install --with-deps chrome
 
 # Claude Code
 
+RUN chown -R ubuntu:ubuntu /home/ubuntu
+
 USER ubuntu
 
-RUN curl -fsSL https://claude.ai/install.sh | bash
-
 WORKDIR /workspace
+
+RUN curl -fsSL https://claude.ai/install.sh | bash
 
 # UV
 
