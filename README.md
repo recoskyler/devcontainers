@@ -2,15 +2,75 @@
 
 Docker-based dev containers with Claude Code, MCP servers, and common tooling pre-installed. Each image targets a different stack/project type.
 
+## Usage
+
+1. Log into ghcr.io:
+
+    ```bash
+    docker login ghcr.io
+    ```
+
+2. Use the image:
+   - In Dockerfile
+
+        ```Dockerfile
+        FROM ghcr.io/recoskyler/trixie-bun-nvm-uv-claude:latest
+        ```
+
+        ```Dockerfile
+        FROM ghcr.io/recoskyler/noble-uv-vnc-claude:latest
+        ```
+
+        ```Dockerfile
+        FROM ghcr.io/recoskyler/trixie-php-nvm-uv-claude:latest
+        ```
+
+    - In Docker Compose
+
+        ```yaml
+        services:
+            app:
+                image: ghcr.io/recoskyler/trixie-bun-nvm-uv-claude:latest
+
+                ports:
+                - "0.0.0.0:7681:7681" # TTYD
+
+                networks:
+                - default
+
+                environment:
+                - ENABLE_TOOL_SEARCH=true
+                - ENABLE_EXPERIMENTAL_MCP_CLI=false
+                - CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS="1"
+
+                logging:
+                    options:
+                        max-size: 10m
+                        max-file: 3
+
+                volumes:
+                - ..:/workspace:cached
+
+                # Overrides default command so things don't shut down after the process ends.
+                command: sleep infinity
+
+                # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
+                # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+        networks:
+            default:
+                driver: bridge
+        ```
+
 ## Images
 
 Each image has its own Dockerfile in a folder named after the image.
 
 | Image | Base | `VARIANT` |
 |-------|------|-----------|
-| `noble-uv-vnc-claude` | `ubuntu:noble` | `noble` |
-| `trixie-bun-nvm-uv-claude` | `oven/bun:debian` | `debian` |
-| `trixie-php-nvm-uv-claude` | `mcr.microsoft.com/devcontainers/php:8.3-trixie` | `8.3-trixie` |
+| `ghcr.io/recoskyler/noble-uv-vnc-claude:latest` | `ubuntu:noble` | `noble` |
+| `ghcr.io/recoskyler/trixie-bun-nvm-uv-claude:latest` | `oven/bun:debian` | `debian` |
+| `ghcr.io/recoskyler/trixie-php-nvm-uv-claude:latest` | `mcr.microsoft.com/devcontainers/php:8.3-trixie` | `8.3-trixie` |
 
 ## What's Included
 
