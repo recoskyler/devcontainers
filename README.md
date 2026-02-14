@@ -18,9 +18,7 @@ Shared Dockerfiles live in `templates/`. Variants that only differ by base image
 |-------|------|----------|-----------|
 | `noble-uv-vnc-claude` | `ubuntu:noble` | `noble-uv-vnc-claude/Dockerfile` | `noble` |
 | `trixie-bun-nvm-uv-claude` | `oven/bun:debian` | `templates/bun.Dockerfile` | `debian` |
-| `trixie-slim-bun-nvm-uv-claude` | `oven/bun:debian-slim` | `templates/bun.Dockerfile` | `debian-slim` |
 | `trixie-php-nvm-uv-claude` | `mcr.microsoft.com/devcontainers/php:8.3-trixie` | `templates/php.Dockerfile` | `8.3-trixie` |
-| `trixie-slim-php-nvm-uv-claude` | `mcr.microsoft.com/devcontainers/php:8.3-trixie-slim` | `templates/php.Dockerfile` | `8.3-trixie-slim` |
 
 ## What's Included
 

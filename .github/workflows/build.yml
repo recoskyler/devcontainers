@@ -22,15 +22,9 @@ jobs:
           - name: trixie-bun-nvm-uv-claude
             dockerfile: templates/bun.Dockerfile
             variant: debian
-          - name: trixie-slim-bun-nvm-uv-claude
-            dockerfile: templates/bun.Dockerfile
-            variant: debian-slim
           - name: trixie-php-nvm-uv-claude
             dockerfile: templates/php.Dockerfile
             variant: "8.3-trixie"
-          - name: trixie-slim-php-nvm-uv-claude
-            dockerfile: templates/php.Dockerfile
-            variant: "8.3-trixie-slim"
           - name: noble-uv-vnc-claude
             dockerfile: noble-uv-vnc-claude/Dockerfile
             variant: noble
