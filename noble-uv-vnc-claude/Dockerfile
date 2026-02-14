@@ -2,11 +2,6 @@ ARG VARIANT=noble
 
 FROM ubuntu:${VARIANT}
 
-ARG NODE_VERSION=24.12.0
-ARG PYTHON_VERSION=3.13
-
-###############################################################################
-
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
@@ -87,6 +82,9 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
 # Install node and npm
+
+ARG NODE_VERSION=24.12.0
+
 RUN source $NVM_DIR/nvm.sh \
     && nvm install ${NODE_VERSION} \
     && nvm alias default ${NODE_VERSION} \
@@ -166,6 +164,10 @@ RUN $HOME/.local/bin/claude mcp add --transport stdio -s user serena -- uvx --fr
 
 RUN $HOME/.local/bin/claude mcp add --transport stdio -s user --env="PLAYWRIGHT_CHROMIUM_ARGS=--no-sandbox --disable-setuid-sandbox" playwright -- npx -y @playwright/mcp@latest
 
+ARG CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
+ARG AUTOMEM_ENDPOINT=${AUTOMEM_ENDPOINT}
+ARG AUTOMEM_API_KEY=${AUTOMEM_API_KEY}
+
 RUN $HOME/.local/bin/claude mcp add --transport stdio -s user context7 -- npx -y @upstash/context7-mcp --api-key ${CONTEXT7_API_KEY}
 
 RUN $HOME/.local/bin/claude mcp add --transport stdio -s user --env="AUTOMEM_ENDPOINT=${AUTOMEM_ENDPOINT}" --env="AUTOMEM_API_KEY=${AUTOMEM_API_KEY}" automem -- npx -y @verygoodplugins/mcp-automem
@@ -173,6 +175,9 @@ RUN $HOME/.local/bin/claude mcp add --transport stdio -s user --env="AUTOMEM_END
 RUN $HOME/.local/bin/claude mcp add --transport http figma https://mcp.figma.com/mcp
 
 # Ntfy Hook
+
+ARG NTFY_URL=${NTFY_URL}
+ARG NTFY_TOKEN=${NTFY_TOKEN}
 
 RUN mkdir -p ~/.claude && \
     [ -f ~/.claude.json ] || echo '{}' > ~/.claude.json && \
@@ -207,6 +212,8 @@ WORKDIR /workspace
 RUN npx -y get-shit-done-cc --claude --local
 
 # VENV
+
+ARG PYTHON_VERSION=3.13
 
 RUN $HOME/.local/bin/uv python install ${PYTHON_VERSION}
 

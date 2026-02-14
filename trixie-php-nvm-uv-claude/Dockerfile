@@ -1,10 +1,6 @@
 ARG VARIANT=8.3-trixie
 
-# From official php image.
 FROM mcr.microsoft.com/devcontainers/php:${VARIANT}
-
-ARG NODE_VERSION=24.12.0
-ARG PYTHON_VERSION=3
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
@@ -91,6 +87,9 @@ RUN mkdir -p $NVM_DIR
 RUN curl --silent -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 
 # Install node and npm
+
+ARG NODE_VERSION=24.12.0
+
 RUN source $NVM_DIR/nvm.sh \
     && nvm install ${NODE_VERSION} \
     && nvm alias default ${NODE_VERSION} \
@@ -227,6 +226,10 @@ RUN $HOME/.local/bin/claude mcp add --transport stdio -s user serena -- uvx --fr
 
 RUN $HOME/.local/bin/claude mcp add --transport stdio -s user --env="PLAYWRIGHT_CHROMIUM_ARGS=--no-sandbox --disable-setuid-sandbox" playwright -- npx -y @playwright/mcp@latest --headless
 
+ARG CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
+ARG AUTOMEM_ENDPOINT=${AUTOMEM_ENDPOINT}
+ARG AUTOMEM_API_KEY=${AUTOMEM_API_KEY}
+
 RUN $HOME/.local/bin/claude mcp add --transport stdio -s user context7 -- npx -y @upstash/context7-mcp --api-key ${CONTEXT7_API_KEY}
 
 RUN $HOME/.local/bin/claude mcp add --transport stdio -s user --env="AUTOMEM_ENDPOINT=${AUTOMEM_ENDPOINT}" --env="AUTOMEM_API_KEY=${AUTOMEM_API_KEY}" automem -- npx -y @verygoodplugins/mcp-automem
@@ -234,6 +237,9 @@ RUN $HOME/.local/bin/claude mcp add --transport stdio -s user --env="AUTOMEM_END
 RUN $HOME/.local/bin/claude mcp add --transport http figma https://mcp.figma.com/mcp
 
 # Ntfy Hook
+
+ARG NTFY_URL=${NTFY_URL}
+ARG NTFY_TOKEN=${NTFY_TOKEN}
 
 RUN mkdir -p ~/.claude && \
     [ -f ~/.claude.json ] || echo '{}' > ~/.claude.json && \
