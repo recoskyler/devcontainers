@@ -56,6 +56,8 @@ RUN mkdir -p -m 755 /etc/apt/keyrings \
     && apt-get update \
     && apt-get -y install --no-install-recommends gh
 
+RUN id ubuntu &>/dev/null || useradd -m -s /bin/bash -u 1000 ubuntu
+
 RUN chsh -s $(which bash) ubuntu \
     && echo 'export PS1="\e[01;32m\u\e[m:\e[01;34m\w\e[m\$ "' >> /home/ubuntu/.bashrc
 

@@ -65,6 +65,8 @@ RUN mkdir -p -m 755 /etc/apt/keyrings \
     && apt-get update \
     && apt-get -y install --no-install-recommends gh
 
+RUN id vscode &>/dev/null || useradd -m -s /bin/bash -u 1000 vscode
+
 RUN chsh -s $(which bash) vscode \
     && echo 'export PS1="\e[01;32m\u\e[m:\e[01;34m\w\e[m\$ "' >> /home/vscode/.bashrc
 
