@@ -40,22 +40,6 @@ if [ -n "$AUTOMEM_ENDPOINT" ] && [ -n "$AUTOMEM_API_KEY" ]; then
             --env="AUTOMEM_API_KEY=$AUTOMEM_API_KEY" \
             memory -- npx -y @verygoodplugins/mcp-automem
     fi
-
-    # Disable Serena's built-in memory tools in favor of Automem
-    SERENA_CONFIG="$HOME/.serena/serena_config.yml"
-    if [ ! -f "$SERENA_CONFIG" ] || ! grep -q 'excluded_tools' "$SERENA_CONFIG" 2>/dev/null; then
-        mkdir -p "$HOME/.serena"
-        cat > "$SERENA_CONFIG" <<'YAML'
-excluded_tools:
-  - "write_memory"
-  - "read_memory"
-  - "edit_memory"
-  - "delete_memory"
-  - "list_memories"
-  - "check_onboarding_performed"
-  - "onboarding"
-YAML
-    fi
 fi
 
 # --- Ntfy Hooks ---
@@ -75,6 +59,28 @@ if [ -n "$NTFY_URL" ] && [ -n "$NTFY_TOKEN" ]; then
         jq --argjson newhooks "$HOOKS_JSON" '. + {hooks: ((.hooks // {}) * $newhooks)}' "$CLAUDE_JSON" > "$CLAUDE_JSON.tmp"
         mv "$CLAUDE_JSON.tmp" "$CLAUDE_JSON"
     fi
+fi
+
+# --- Serena project-scope config ---
+# Exclude Serena memory tools via project config (not user-scope)
+SERENA_PROJECT="/workspace/.serena/project.yml"
+if [ -f "$SERENA_PROJECT" ] && grep -q '^excluded_tools: \[\]' "$SERENA_PROJECT"; then
+    if [ -n "$AUTOMEM_ENDPOINT" ] && [ -n "$AUTOMEM_API_KEY" ]; then
+        # Automem replaces all Serena memory/onboarding tools
+        TOOLS=(write_memory read_memory edit_memory delete_memory list_memories check_onboarding_performed onboarding)
+    else
+        # No Automem backend: disable memory mutation tools
+        TOOLS=(write_memory delete_memory read_memory)
+    fi
+
+    YAML="excluded_tools:"
+    for t in "${TOOLS[@]}"; do
+        YAML="${YAML}
+- ${t}"
+    done
+
+    awk -v new="$YAML" '/^excluded_tools: \[\]/ { print new; next } 1' "$SERENA_PROJECT" > "$SERENA_PROJECT.tmp"
+    mv "$SERENA_PROJECT.tmp" "$SERENA_PROJECT"
 fi
 
 touch /tmp/.claude-mcp-init
