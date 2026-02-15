@@ -62,12 +62,56 @@ $CLAUDE mcp add --transport http figma https://mcp.figma.com/mcp
 # --- Ntfy Hook ---
 
 if [ -n "$NTFY_URL" ] && [ -n "$NTFY_TOKEN" ]; then
-    mkdir -p ~/.claude
+    mkdir -p ~/.claude ~/.local/bin
     [ -f ~/.claude.json ] || echo '{}' > ~/.claude.json
 
-    HOOKS_JSON='{"Notification":[{"matcher":"*","hooks":[{"type":"command","command":"bash -c '\''D=$(cat); curl -H \"Markdown: yes\" -H \"Priority: max\" -H \"Title: Çekirge: $(echo \"$D\"|jq -r \".title // \\\"Notification\\\"\")\" -H \"Tags: cricket,warning\" -u :__NTFY_TOKEN__ -d \"$(echo \"$D\"|jq -r \"\\\"**Type:** \\(.notification_type // \\\"notification\\\")\\n\\n\\(.message // \\\"No details\\\")\\n\\n\\\"**Tool:** \\(.tool_name // \\\"unknown\\\")\\n\\n\\(.tool_input // \\\"No details\\\")\\\"\")\" __NTFY_URL__'\''"}]}],"Stop":[{"matcher":"*","hooks":[{"type":"command","command":"bash -c '\''D=$(cat); curl -H \"Markdown: yes\" -H \"Title: Çekirge: Stopped\" -H \"Tags: cricket,white_check_mark\" -u :__NTFY_TOKEN__ -d \"$(echo \"$D\"|jq -r \"\\\"**Session:** \\(.session_id // \\\"unknown\\\")\\n**Directory:** \\(.cwd // \\\"unknown\\\")\\\"\")\" __NTFY_URL__'\''"}]}]}'
-    HOOKS_JSON="${HOOKS_JSON//__NTFY_TOKEN__/${NTFY_TOKEN}}"
-    HOOKS_JSON="${HOOKS_JSON//__NTFY_URL__/${NTFY_URL}}"
+    cat > "$HOME/.local/bin/ntfy-hook.sh" << 'HOOKSCRIPT'
+#!/bin/bash
+EVENT_TYPE="${1:-notification}"
+INPUT=$(cat)
+NTFY_URL="__NTFY_URL__"
+NTFY_TOKEN="__NTFY_TOKEN__"
+
+case "$EVENT_TYPE" in
+    notification)
+        TITLE=$(echo "$INPUT" | jq -r '.title // "Notification"')
+        TYPE=$(echo "$INPUT" | jq -r '.notification_type // "notification"')
+        MESSAGE=$(echo "$INPUT" | jq -r '.message // "No details"')
+        TOOL=$(echo "$INPUT" | jq -r '.tool_name // "unknown"')
+        TOOL_INPUT=$(echo "$INPUT" | jq -r '.tool_input // "No details"')
+        BODY=$(printf "**Type:** %s\n\n%s\n\n**Tool:** %s\n\n%s" "$TYPE" "$MESSAGE" "$TOOL" "$TOOL_INPUT")
+        curl -s -H "Markdown: yes" -H "Priority: max" \
+            -H "Title: Çekirge: ${TITLE}" \
+            -H "Tags: cricket,warning" \
+            -u ":${NTFY_TOKEN}" \
+            -d "$BODY" "$NTFY_URL"
+        ;;
+    stop)
+        SESSION=$(echo "$INPUT" | jq -r '.session_id // "unknown"')
+        CWD=$(echo "$INPUT" | jq -r '.cwd // "unknown"')
+        BODY=$(printf "**Session:** %s\n**Directory:** %s" "$SESSION" "$CWD")
+        curl -s -H "Markdown: yes" \
+            -H "Title: Çekirge: Stopped" \
+            -H "Tags: cricket,white_check_mark" \
+            -u ":${NTFY_TOKEN}" \
+            -d "$BODY" "$NTFY_URL"
+        ;;
+esac
+HOOKSCRIPT
+
+    sed -i "s|__NTFY_URL__|${NTFY_URL}|g" "$HOME/.local/bin/ntfy-hook.sh"
+    sed -i "s|__NTFY_TOKEN__|${NTFY_TOKEN}|g" "$HOME/.local/bin/ntfy-hook.sh"
+    chmod +x "$HOME/.local/bin/ntfy-hook.sh"
+
+    HOOK_CMD="$HOME/.local/bin/ntfy-hook.sh"
+    HOOKS_JSON=$(jq -n \
+        --arg ncmd "$HOOK_CMD notification" \
+        --arg scmd "$HOOK_CMD stop" \
+        '{
+            Notification: [{matcher: "*", hooks: [{type: "command", command: $ncmd}]}],
+            Stop: [{matcher: "*", hooks: [{type: "command", command: $scmd}]}]
+        }')
+
     jq --argjson newhooks "$HOOKS_JSON" '. + {hooks: ((.hooks // {}) * $newhooks)}' ~/.claude.json > ~/.claude.json.tmp
     mv ~/.claude.json.tmp ~/.claude.json
 fi
