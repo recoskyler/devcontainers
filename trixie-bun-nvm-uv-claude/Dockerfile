@@ -123,8 +123,9 @@ ENV NTFY_URL=${NTFY_URL}
 ENV NTFY_TOKEN=${NTFY_TOKEN}
 
 COPY --chown=bun:bun scripts/ntfy-hook.sh $HOME/.local/bin/ntfy-hook.sh
+COPY --chown=bun:bun scripts/suggest-context7-hook.sh $HOME/.local/bin/suggest-context7-hook.sh
 COPY --chown=bun:bun scripts/init-claude-mcp.sh $HOME/.local/bin/init-claude-mcp.sh
-RUN chmod +x $HOME/.local/bin/ntfy-hook.sh $HOME/.local/bin/init-claude-mcp.sh
+RUN chmod +x $HOME/.local/bin/ntfy-hook.sh $HOME/.local/bin/suggest-context7-hook.sh $HOME/.local/bin/init-claude-mcp.sh
 
 COPY --chown=bun:bun scripts/setup-claude.sh /tmp/setup-claude.sh
 RUN bash /tmp/setup-claude.sh && rm -f /tmp/setup-claude.sh
