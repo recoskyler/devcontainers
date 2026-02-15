@@ -98,6 +98,7 @@ RUN apt-get autoremove -y \
 RUN chown -R bun:bun /home/bun
 
 USER bun
+ENV HOME=/home/bun
 
 # Claude Code
 RUN curl -fsSL https://claude.ai/install.sh | bash

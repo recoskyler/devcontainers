@@ -119,6 +119,7 @@ RUN apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
 USER vscode
+ENV HOME=/home/vscode
 
 # Claude Code
 RUN curl -fsSL https://claude.ai/install.sh | bash
