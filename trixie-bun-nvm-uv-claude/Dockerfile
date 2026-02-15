@@ -52,6 +52,8 @@ RUN mkdir -p -m 755 /etc/apt/keyrings \
     && apt-get update \
     && apt-get -y install --no-install-recommends gh stripe
 
+RUN id bun &>/dev/null || useradd -m -s /bin/bash -u 1000 bun
+
 RUN chsh -s $(which bash) bun \
     && echo 'export PS1="\e[01;32m\u\e[m:\e[01;34m\w\e[m\$ "' >> /home/bun/.bashrc
 
