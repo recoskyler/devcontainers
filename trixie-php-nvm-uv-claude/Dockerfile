@@ -130,12 +130,13 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
     && echo 'export PATH=$HOME/.local/bin:$PATH' >> /home/vscode/.bashrc
 
 # Claude Plugins, MCP, Hooks
-ARG CONTEXT7_API_KEY
-ARG AUTOMEM_ENDPOINT
-ARG AUTOMEM_API_KEY
-ARG NTFY_URL
-ARG NTFY_TOKEN
+ARG CONTEXT7_API_KEY=""
+ARG AUTOMEM_ENDPOINT=""
+ARG AUTOMEM_API_KEY=""
+ARG NTFY_URL=""
+ARG NTFY_TOKEN=""
 ARG PLAYWRIGHT_MCP_ARGS="--headless --no-sandbox"
 
 COPY --chown=vscode:vscode scripts/setup-claude.sh /tmp/setup-claude.sh
-RUN bash /tmp/setup-claude.sh && rm -f /tmp/setup-claude.sh
+COPY --chown=vscode:vscode scripts/ntfy-hook.sh /tmp/ntfy-hook.sh
+RUN bash /tmp/setup-claude.sh && rm -f /tmp/setup-claude.sh /tmp/ntfy-hook.sh

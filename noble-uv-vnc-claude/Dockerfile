@@ -114,15 +114,16 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
     && echo 'export PATH=$HOME/.local/bin:$PATH' >> $HOME/.bashrc
 
 # Claude Plugins, MCP, Hooks
-ARG CONTEXT7_API_KEY
-ARG AUTOMEM_ENDPOINT
-ARG AUTOMEM_API_KEY
-ARG NTFY_URL
-ARG NTFY_TOKEN
+ARG CONTEXT7_API_KEY=""
+ARG AUTOMEM_ENDPOINT=""
+ARG AUTOMEM_API_KEY=""
+ARG NTFY_URL=""
+ARG NTFY_TOKEN=""
 ARG PLAYWRIGHT_MCP_ARGS="--no-sandbox"
 
 COPY --chown=ubuntu:ubuntu scripts/setup-claude.sh /tmp/setup-claude.sh
-RUN bash /tmp/setup-claude.sh && rm -f /tmp/setup-claude.sh
+COPY --chown=ubuntu:ubuntu scripts/ntfy-hook.sh /tmp/ntfy-hook.sh
+RUN bash /tmp/setup-claude.sh && rm -f /tmp/setup-claude.sh /tmp/ntfy-hook.sh
 
 # Python (via UV)
 ARG PYTHON_VERSION=3.13
