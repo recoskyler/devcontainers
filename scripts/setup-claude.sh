@@ -61,7 +61,7 @@ if [ -n "$AUTOMEM_ENDPOINT" ] && [ -n "$AUTOMEM_API_KEY" ]; then
     $CLAUDE mcp add --transport stdio -s user \
         --env="AUTOMEM_ENDPOINT=$AUTOMEM_ENDPOINT" \
         --env="AUTOMEM_API_KEY=$AUTOMEM_API_KEY" \
-        automem -- npx -y @verygoodplugins/mcp-automem
+        memory -- npx -y @verygoodplugins/mcp-automem
 fi
 
 $CLAUDE mcp add --transport http figma https://mcp.figma.com/mcp
