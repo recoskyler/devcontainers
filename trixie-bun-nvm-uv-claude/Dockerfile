@@ -114,7 +114,7 @@ ARG AUTOMEM_ENDPOINT
 ARG AUTOMEM_API_KEY
 ARG NTFY_URL
 ARG NTFY_TOKEN
-ARG PLAYWRIGHT_MCP_ARGS="--headless --no-sandbox --disable-setuid-sandbox"
+ARG PLAYWRIGHT_MCP_ARGS="--headless --no-sandbox"
 
 COPY --chown=bun:bun scripts/setup-claude.sh /tmp/setup-claude.sh
 RUN bash /tmp/setup-claude.sh && rm -f /tmp/setup-claude.sh
