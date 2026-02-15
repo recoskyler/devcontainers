@@ -39,7 +39,10 @@ rm -rf /tmp/everything-claude-code
 # --- GSD ---
 
 cd /workspace
+
 npx -y get-shit-done-cc --claude --local
+
+echo '{ "type": "commonjs" }' > /workspace/.claude/get-shit-done/bin/package.json
 
 # --- MCP Servers ---
 
@@ -49,13 +52,17 @@ $CLAUDE mcp add --transport stdio -s user serena -- \
 $CLAUDE mcp add --transport stdio -s user \
     playwright -- npx -y @playwright/mcp@latest ${PLAYWRIGHT_MCP_ARGS:-}
 
-$CLAUDE mcp add --transport stdio -s user context7 -- \
-    npx -y @upstash/context7-mcp --api-key "$CONTEXT7_API_KEY"
+if [ -n "$CONTEXT7_API_KEY" ]; then
+    $CLAUDE mcp add --transport stdio -s user context7 -- \
+        npx -y @upstash/context7-mcp --api-key "$CONTEXT7_API_KEY"
+fi
 
-$CLAUDE mcp add --transport stdio -s user \
-    --env="AUTOMEM_ENDPOINT=$AUTOMEM_ENDPOINT" \
-    --env="AUTOMEM_API_KEY=$AUTOMEM_API_KEY" \
-    automem -- npx -y @verygoodplugins/mcp-automem
+if [ -n "$AUTOMEM_ENDPOINT" ] && [ -n "$AUTOMEM_API_KEY" ]; then
+    $CLAUDE mcp add --transport stdio -s user \
+        --env="AUTOMEM_ENDPOINT=$AUTOMEM_ENDPOINT" \
+        --env="AUTOMEM_API_KEY=$AUTOMEM_API_KEY" \
+        automem -- npx -y @verygoodplugins/mcp-automem
+fi
 
 $CLAUDE mcp add --transport http figma https://mcp.figma.com/mcp
 
@@ -65,40 +72,7 @@ if [ -n "$NTFY_URL" ] && [ -n "$NTFY_TOKEN" ]; then
     mkdir -p ~/.claude ~/.local/bin
     [ -f ~/.claude.json ] || echo '{}' > ~/.claude.json
 
-    cat > "$HOME/.local/bin/ntfy-hook.sh" << 'HOOKSCRIPT'
-#!/bin/bash
-EVENT_TYPE="${1:-notification}"
-INPUT=$(cat)
-NTFY_URL="__NTFY_URL__"
-NTFY_TOKEN="__NTFY_TOKEN__"
-
-case "$EVENT_TYPE" in
-    notification)
-        TITLE=$(echo "$INPUT" | jq -r '.title // "Notification"')
-        TYPE=$(echo "$INPUT" | jq -r '.notification_type // "notification"')
-        MESSAGE=$(echo "$INPUT" | jq -r '.message // "No details"')
-        TOOL=$(echo "$INPUT" | jq -r '.tool_name // "unknown"')
-        TOOL_INPUT=$(echo "$INPUT" | jq -r '.tool_input // "No details"')
-        BODY=$(printf "**Type:** %s\n\n%s\n\n**Tool:** %s\n\n%s" "$TYPE" "$MESSAGE" "$TOOL" "$TOOL_INPUT")
-        curl -s -H "Markdown: yes" -H "Priority: max" \
-            -H "Title: Çekirge: ${TITLE}" \
-            -H "Tags: cricket,warning" \
-            -u ":${NTFY_TOKEN}" \
-            -d "$BODY" "$NTFY_URL"
-        ;;
-    stop)
-        SESSION=$(echo "$INPUT" | jq -r '.session_id // "unknown"')
-        CWD=$(echo "$INPUT" | jq -r '.cwd // "unknown"')
-        BODY=$(printf "**Session:** %s\n**Directory:** %s" "$SESSION" "$CWD")
-        curl -s -H "Markdown: yes" \
-            -H "Title: Çekirge: Stopped" \
-            -H "Tags: cricket,white_check_mark" \
-            -u ":${NTFY_TOKEN}" \
-            -d "$BODY" "$NTFY_URL"
-        ;;
-esac
-HOOKSCRIPT
-
+    cp /tmp/ntfy-hook.sh "$HOME/.local/bin/ntfy-hook.sh"
     sed -i "s|__NTFY_URL__|${NTFY_URL}|g" "$HOME/.local/bin/ntfy-hook.sh"
     sed -i "s|__NTFY_TOKEN__|${NTFY_TOKEN}|g" "$HOME/.local/bin/ntfy-hook.sh"
     chmod +x "$HOME/.local/bin/ntfy-hook.sh"
