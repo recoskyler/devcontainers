@@ -30,6 +30,12 @@ $CLAUDE plugin install pyright-lsp@claude-plugins-official
 $CLAUDE plugin install php-lsp@claude-plugins-official
 $CLAUDE plugin install laravel-boost@claude-plugins-official
 
+# --- Agent Browser ---
+
+mkdir -p /workspace/.claude/skills/agent-browser
+
+curl -o /workspace/.claude/skills/agent-browser/SKILL.md https://raw.githubusercontent.com/vercel-labs/agent-browser/main/skills/agent-browser/SKILL.md
+
 # --- Hookify Fix ---
 
 HOOKIFY_DIR="$HOME/.claude/plugins/cache/claude-code-plugins/hookify/0.1.0"

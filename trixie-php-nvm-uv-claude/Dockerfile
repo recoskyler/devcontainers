@@ -146,3 +146,13 @@ ENV NTFY_TOKEN=${NTFY_TOKEN}
 COPY --chown=vscode:vscode scripts/setup-claude.sh /tmp/setup-claude.sh
 COPY --chown=vscode:vscode scripts/ntfy-hook.sh /tmp/ntfy-hook.sh
 RUN bash /tmp/setup-claude.sh && rm -f /tmp/setup-claude.sh /tmp/ntfy-hook.sh
+
+# agent-browser
+
+USER root
+
+RUN npm install -y -g agent-browser
+
+RUN agent-browser install --with-deps
+
+USER vscode
