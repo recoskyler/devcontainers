@@ -11,24 +11,24 @@ $CLAUDE plugin install everything-claude-code@everything-claude-code
 $CLAUDE plugin marketplace add obra/superpowers
 $CLAUDE plugin install superpowers@superpowers-dev
 
-$CLAUDE plugin marketplace add anthropics/claude-code
-$CLAUDE plugin install code-review@claude-code-plugins
-$CLAUDE plugin install commit-commands@claude-code-plugins
-$CLAUDE plugin install explanatory-output-style@claude-code-plugins
-$CLAUDE plugin install hookify@claude-code-plugins
-$CLAUDE plugin install feature-dev@claude-code-plugins
-$CLAUDE plugin install frontend-design@claude-code-plugins
-$CLAUDE plugin install learning-output-style@claude-code-plugins
-$CLAUDE plugin install ralph-wiggum@claude-code-plugins
-$CLAUDE plugin install pr-review-toolkit@claude-code-plugins
-$CLAUDE plugin install security-guidance@claude-code-plugins
-$CLAUDE plugin install claude-md-management@claude-code-plugins
-$CLAUDE plugin install claude-code-setup@claude-code-plugins
-$CLAUDE plugin install playground@claude-code-plugins
-$CLAUDE plugin install typescript-lsp@claude-code-plugins
-$CLAUDE plugin install pyright-lsp@claude-code-plugins
-$CLAUDE plugin install php-lsp@claude-code-plugins
-$CLAUDE plugin install laravel-boost@claude-code-plugins
+$CLAUDE plugin marketplace add anthropics/claude-plugins-official
+$CLAUDE plugin install code-review@claude-plugins-official
+$CLAUDE plugin install commit-commands@claude-plugins-official
+$CLAUDE plugin install explanatory-output-style@claude-plugins-official
+$CLAUDE plugin install hookify@claude-plugins-official
+$CLAUDE plugin install feature-dev@claude-plugins-official
+$CLAUDE plugin install frontend-design@claude-plugins-official
+$CLAUDE plugin install learning-output-style@claude-plugins-official
+$CLAUDE plugin install ralph-wiggum@claude-plugins-official
+$CLAUDE plugin install pr-review-toolkit@claude-plugins-official
+$CLAUDE plugin install security-guidance@claude-plugins-official
+$CLAUDE plugin install claude-md-management@claude-plugins-official
+$CLAUDE plugin install claude-code-setup@claude-plugins-official
+$CLAUDE plugin install playground@claude-plugins-official
+$CLAUDE plugin install typescript-lsp@claude-plugins-official
+$CLAUDE plugin install pyright-lsp@claude-plugins-official
+$CLAUDE plugin install php-lsp@claude-plugins-official
+$CLAUDE plugin install laravel-boost@claude-plugins-official
 
 # --- Hookify Fix ---
 
