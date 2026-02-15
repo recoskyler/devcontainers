@@ -137,6 +137,12 @@ ARG NTFY_URL=""
 ARG NTFY_TOKEN=""
 ARG PLAYWRIGHT_MCP_ARGS="--headless --no-sandbox"
 
+ENV CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
+ENV AUTOMEM_ENDPOINT=${AUTOMEM_ENDPOINT}
+ENV AUTOMEM_API_KEY=${AUTOMEM_API_KEY}
+ENV NTFY_URL=${NTFY_URL}
+ENV NTFY_TOKEN=${NTFY_TOKEN}
+
 COPY --chown=vscode:vscode scripts/setup-claude.sh /tmp/setup-claude.sh
 COPY --chown=vscode:vscode scripts/ntfy-hook.sh /tmp/ntfy-hook.sh
 RUN bash /tmp/setup-claude.sh && rm -f /tmp/setup-claude.sh /tmp/ntfy-hook.sh
