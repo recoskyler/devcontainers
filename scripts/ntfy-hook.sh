@@ -1,10 +1,12 @@
 #!/bin/bash
 EVENT_TYPE="${1:-notification}"
 INPUT=$(timeout 5 cat 2>/dev/null || true)
-NTFY_URL="__NTFY_URL__"
-NTFY_TOKEN="__NTFY_TOKEN__"
+NTFY_URL="${NTFY_URL:-}"
+NTFY_TOKEN="${NTFY_TOKEN:-}"
 
 [ -z "$INPUT" ] && exit 0
+[ -z "$NTFY_URL" ] && exit 0
+[ -z "$NTFY_TOKEN" ] && exit 0
 
 case "$EVENT_TYPE" in
     notification)

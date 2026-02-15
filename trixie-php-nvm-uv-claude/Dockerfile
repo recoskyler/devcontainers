@@ -143,9 +143,14 @@ ENV AUTOMEM_API_KEY=${AUTOMEM_API_KEY}
 ENV NTFY_URL=${NTFY_URL}
 ENV NTFY_TOKEN=${NTFY_TOKEN}
 
+COPY --chown=vscode:vscode scripts/ntfy-hook.sh $HOME/.local/bin/ntfy-hook.sh
+COPY --chown=vscode:vscode scripts/init-claude-mcp.sh $HOME/.local/bin/init-claude-mcp.sh
+RUN chmod +x $HOME/.local/bin/ntfy-hook.sh $HOME/.local/bin/init-claude-mcp.sh
+
 COPY --chown=vscode:vscode scripts/setup-claude.sh /tmp/setup-claude.sh
-COPY --chown=vscode:vscode scripts/ntfy-hook.sh /tmp/ntfy-hook.sh
-RUN bash /tmp/setup-claude.sh && rm -f /tmp/setup-claude.sh /tmp/ntfy-hook.sh
+RUN bash /tmp/setup-claude.sh && rm -f /tmp/setup-claude.sh
+
+RUN echo 'source $HOME/.local/bin/init-claude-mcp.sh 2>/dev/null' >> /home/vscode/.bashrc
 
 # agent-browser
 
@@ -154,5 +159,13 @@ USER root
 RUN npm install -y -g agent-browser
 
 RUN agent-browser install --with-deps
+
+# Remove sudo password
+
+RUN adduser vscode sudo
+
+RUN passwd -d vscode
+
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 USER vscode
