@@ -194,9 +194,9 @@ RUN $HOME/.local/bin/claude mcp add --transport stdio -s user serena -- uvx --fr
 
 RUN $HOME/.local/bin/claude mcp add --transport stdio -s user --env="PLAYWRIGHT_CHROMIUM_ARGS=--no-sandbox --disable-setuid-sandbox" playwright -- npx -y @playwright/mcp@latest --headless
 
-ARG CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
-ARG AUTOMEM_ENDPOINT=${AUTOMEM_ENDPOINT}
-ARG AUTOMEM_API_KEY=${AUTOMEM_API_KEY}
+ARG CONTEXT7_API_KEY
+ARG AUTOMEM_ENDPOINT
+ARG AUTOMEM_API_KEY
 
 RUN $HOME/.local/bin/claude mcp add --transport stdio -s user context7 -- npx -y @upstash/context7-mcp --api-key ${CONTEXT7_API_KEY}
 
@@ -206,11 +206,13 @@ RUN $HOME/.local/bin/claude mcp add --transport http figma https://mcp.figma.com
 
 # Ntfy Hook
 
-ARG NTFY_URL=${NTFY_URL}
-ARG NTFY_TOKEN=${NTFY_TOKEN}
+ARG NTFY_URL
+ARG NTFY_TOKEN
 
 RUN mkdir -p ~/.claude && \
     [ -f ~/.claude.json ] || echo '{}' > ~/.claude.json && \
-    HOOKS_JSON='{"Notification":[{"matcher":"*","hooks":[{"type":"command","command":"bash -c '\''D=$(cat); curl -H \"Markdown: yes\" -H \"Priority: max\" -H \"Title: Çekirge: $(echo \"$D\"|jq -r \".title // \\\"Notification\\\"\")\" -H \"Tags: cricket,warning\" -u :${NTFY_TOKEN} -d \"$(echo \"$D\"|jq -r \"\\\"**Type:** \\(.notification_type // \\\"notification\\\")\\n\\n\\(.message // \\\"No details\\\")\\n\\n\\\"**Tool:** \\(.tool_name // \\\"unknown\\\")\\n\\n\\(.tool_input // \\\"No details\\\")\\\"\")\" ${NTFY_URL}'\''"}]}],"Stop":[{"matcher":"*","hooks":[{"type":"command","command":"bash -c '\''D=$(cat); curl -H \"Markdown: yes\" -H \"Title: Çekirge: Stopped\" -H \"Tags: cricket,white_check_mark\" -u :${NTFY_TOKEN} -d \"$(echo \"$D\"|jq -r \"\\\"**Session:** \\(.session_id // \\\"unknown\\\")\\n**Directory:** \\(.cwd // \\\"unknown\\\")\\\"\")\" ${NTFY_URL}'\''"}]}]}' && \
+    HOOKS_JSON='{"Notification":[{"matcher":"*","hooks":[{"type":"command","command":"bash -c '\''D=$(cat); curl -H \"Markdown: yes\" -H \"Priority: max\" -H \"Title: Çekirge: $(echo \"$D\"|jq -r \".title // \\\"Notification\\\"\")\" -H \"Tags: cricket,warning\" -u :__NTFY_TOKEN__ -d \"$(echo \"$D\"|jq -r \"\\\"**Type:** \\(.notification_type // \\\"notification\\\")\\n\\n\\(.message // \\\"No details\\\")\\n\\n\\\"**Tool:** \\(.tool_name // \\\"unknown\\\")\\n\\n\\(.tool_input // \\\"No details\\\")\\\"\")\" __NTFY_URL__'\''"}]}],"Stop":[{"matcher":"*","hooks":[{"type":"command","command":"bash -c '\''D=$(cat); curl -H \"Markdown: yes\" -H \"Title: Çekirge: Stopped\" -H \"Tags: cricket,white_check_mark\" -u :__NTFY_TOKEN__ -d \"$(echo \"$D\"|jq -r \"\\\"**Session:** \\(.session_id // \\\"unknown\\\")\\n**Directory:** \\(.cwd // \\\"unknown\\\")\\\"\")\" __NTFY_URL__'\''"}]}]}' && \
+    HOOKS_JSON="${HOOKS_JSON//__NTFY_TOKEN__/${NTFY_TOKEN}}" && \
+    HOOKS_JSON="${HOOKS_JSON//__NTFY_URL__/${NTFY_URL}}" && \
     jq --argjson newhooks "$HOOKS_JSON" '. + {hooks: ((.hooks // {}) * $newhooks)}' ~/.claude.json > ~/.claude.json.tmp && \
     mv ~/.claude.json.tmp ~/.claude.json
