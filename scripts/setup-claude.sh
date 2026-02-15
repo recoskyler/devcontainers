@@ -22,6 +22,13 @@ $CLAUDE plugin install learning-output-style@claude-code-plugins
 $CLAUDE plugin install ralph-wiggum@claude-code-plugins
 $CLAUDE plugin install pr-review-toolkit@claude-code-plugins
 $CLAUDE plugin install security-guidance@claude-code-plugins
+$CLAUDE plugin install claude-md-management@claude-code-plugins
+$CLAUDE plugin install claude-code-setup@claude-code-plugins
+$CLAUDE plugin install playground@claude-code-plugins
+$CLAUDE plugin install typescript-lsp@claude-code-plugins
+$CLAUDE plugin install pyright-lsp@claude-code-plugins
+$CLAUDE plugin install php-lsp@claude-code-plugins
+$CLAUDE plugin install laravel-boost@claude-code-plugins
 
 # --- Hookify Fix ---
 
