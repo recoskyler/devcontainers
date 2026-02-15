@@ -138,6 +138,16 @@ RUN $HOME/.local/bin/uv python install ${PYTHON_VERSION} \
     && $HOME/.local/bin/uv python pin ${PYTHON_VERSION} \
     && $HOME/.local/bin/uv init && $HOME/.local/bin/uv venv
 
+# agent-browser
+
+USER root
+
+RUN npm install -y -g agent-browser
+
+RUN agent-browser install --with-deps
+
+USER ubuntu
+
 # Requirements
 # COPY ./requirements.txt /workspace/requirements.txt
 # RUN source .venv/activate && $HOME/.local/bin/uv pip install -r requirements.txt

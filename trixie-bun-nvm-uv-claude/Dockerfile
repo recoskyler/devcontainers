@@ -125,3 +125,13 @@ ENV NTFY_TOKEN=${NTFY_TOKEN}
 COPY --chown=bun:bun scripts/setup-claude.sh /tmp/setup-claude.sh
 COPY --chown=bun:bun scripts/ntfy-hook.sh /tmp/ntfy-hook.sh
 RUN bash /tmp/setup-claude.sh && rm -f /tmp/setup-claude.sh /tmp/ntfy-hook.sh
+
+# agent-browser
+
+USER root
+
+RUN npm install -y -g agent-browser
+
+RUN agent-browser install --with-deps
+
+USER bun

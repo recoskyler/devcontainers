@@ -32,10 +32,6 @@ $CLAUDE plugin install laravel-boost@claude-plugins-official
 
 # --- Agent Browser ---
 
-npm install -y -g agent-browser
-
-agent-browser install --with-deps
-
 mkdir -p /workspace/.claude/skills/agent-browser
 
 curl -o /workspace/.claude/skills/agent-browser/SKILL.md https://raw.githubusercontent.com/vercel-labs/agent-browser/main/skills/agent-browser/SKILL.md
