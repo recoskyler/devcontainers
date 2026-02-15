@@ -26,11 +26,6 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
                     VARIANT: debian
                     NODE_VERSION: '24.12.0'
                     PYTHON_VERSION: '3.13'
-                    CONTEXT7_API_KEY: your-key
-                    AUTOMEM_ENDPOINT: your-endpoint
-                    AUTOMEM_API_KEY: your-key
-                    NTFY_URL: https://ntfy.sh/your-topic
-                    NTFY_TOKEN: your-token
 
             ports:
                 - "0.0.0.0:7681:7681" # TTYD
@@ -39,10 +34,12 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
             networks:
                 - default
 
-            args:
-                -
-
             environment:
+                - CONTEXT7_API_KEY=your-key
+                - AUTOMEM_ENDPOINT=your-endpoint
+                - AUTOMEM_API_KEY=your-key
+                - NTFY_URL=https://ntfy.sh/your-topic
+                - NTFY_TOKEN=your-token
                 - ENABLE_TOOL_SEARCH=true
                 - ENABLE_EXPERIMENTAL_MCP_CLI=false
                 - CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS="1"
@@ -179,25 +176,30 @@ Each image has its own Dockerfile in a folder named after the image.
 
 ## Build Arguments
 
-All configuration is done via `--build-arg` at build time. The CI workflow only passes `VARIANT`; provide additional args when building locally to enable optional features.
-
 | Argument | Default | Description |
 |----------|---------|-------------|
 | `VARIANT` | per image (see Images table) | Base image variant |
 | `NODE_VERSION` | `24.12.0` | Node.js version installed via NVM |
 | `PYTHON_VERSION` | `3` / `3.13` (noble) | Python version |
 | `PLAYWRIGHT_MCP_ARGS` | `--headless --no-sandbox` | Extra args for Playwright MCP server |
-| `CONTEXT7_API_KEY` | _(empty)_ | [Context7](https://context7.com) MCP server API key (skipped if empty) |
-| `AUTOMEM_ENDPOINT` | _(empty)_ | [Automem](https://github.com/verygoodplugins/mcp-automem) MCP server endpoint URL (skipped if empty) |
-| `AUTOMEM_API_KEY` | _(empty)_ | [Automem](https://github.com/verygoodplugins/mcp-automem) MCP server API key (skipped if empty) |
-| `NTFY_URL` | _(empty)_ | [ntfy](https://ntfy.sh) server/topic URL for notification hooks (skipped if empty) |
-| `NTFY_TOKEN` | _(empty)_ | [ntfy](https://ntfy.sh) authentication token for notification hooks (skipped if empty) |
 
-> Optional MCP servers and ntfy hooks are only configured when their corresponding arguments are provided.
+## Runtime Environment Variables
+
+Secret-dependent MCP servers and ntfy hooks are configured at **runtime** (first shell login) via environment variables. Pass these in your compose `environment` section or via `docker run -e`.
+
+| Variable | Description |
+|----------|-------------|
+| `CONTEXT7_API_KEY` | [Context7](https://context7.com) MCP server API key (skipped if empty) |
+| `AUTOMEM_ENDPOINT` | [Automem](https://github.com/verygoodplugins/mcp-automem) MCP server endpoint URL (skipped if empty) |
+| `AUTOMEM_API_KEY` | [Automem](https://github.com/verygoodplugins/mcp-automem) MCP server API key (skipped if empty) |
+| `NTFY_URL` | [ntfy](https://ntfy.sh) server/topic URL for notification hooks (skipped if empty) |
+| `NTFY_TOKEN` | [ntfy](https://ntfy.sh) authentication token for notification hooks (skipped if empty) |
+
+> Optional MCP servers and ntfy hooks are only configured when their corresponding environment variables are set.
 
 ## CI/CD
 
-The GitHub Actions workflow (`.github/workflows/build.yml`) builds and pushes base images (without API keys) on every push to `latest` branch or when a version tag is created. To include optional MCP servers and hooks, build the images locally with the required `--build-arg` values.
+The GitHub Actions workflow (`.github/workflows/build.yml`) builds and pushes base images on every push to `latest` branch or when a version tag is created. Secret-dependent MCP servers and hooks are configured at runtime via environment variables.
 
 Images are published to GHCR at `ghcr.io/<owner>/<image-name>`.
 
@@ -212,22 +214,27 @@ Images are published to GHCR at `ghcr.io/<owner>/<image-name>`.
 
 ## Local Build
 
-Build locally with your own API keys and configuration:
+Build locally:
 
 ```bash
 docker build \
   -f trixie-bun-nvm-uv-claude/Dockerfile \
   --build-arg VARIANT=debian \
   --build-arg NODE_VERSION=24.12.0 \
-  --build-arg CONTEXT7_API_KEY=your-key \
-  --build-arg AUTOMEM_ENDPOINT=your-endpoint \
-  --build-arg AUTOMEM_API_KEY=your-key \
-  --build-arg NTFY_URL=https://ntfy.sh/your-topic \
-  --build-arg NTFY_TOKEN=your-token \
   -t trixie-bun-nvm-uv-claude .
 ```
 
-Omit any `--build-arg` to skip that feature (defaults are used).
+Then run with your API keys as environment variables:
+
+```bash
+docker run -it \
+  -e CONTEXT7_API_KEY=your-key \
+  -e AUTOMEM_ENDPOINT=your-endpoint \
+  -e AUTOMEM_API_KEY=your-key \
+  -e NTFY_URL=https://ntfy.sh/your-topic \
+  -e NTFY_TOKEN=your-token \
+  trixie-bun-nvm-uv-claude
+```
 
 ## Agent Browser
 

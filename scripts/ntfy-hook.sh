@@ -1,13 +1,15 @@
 #!/bin/bash
 EVENT_TYPE="${1:-notification}"
 INPUT=$(timeout 5 cat 2>/dev/null || true)
-NTFY_URL="__NTFY_URL__"
-NTFY_TOKEN="__NTFY_TOKEN__"
+NTFY_URL="${NTFY_URL:-}"
+NTFY_TOKEN="${NTFY_TOKEN:-}"
 
 [ -z "$INPUT" ] && exit 0
+[ -z "$NTFY_URL" ] && exit 0
+[ -z "$NTFY_TOKEN" ] && exit 0
 
 case "$EVENT_TYPE" in
-    notification)
+    (notification)
         TITLE=$(echo "$INPUT" | jq -r '.title // "Notification"')
         TYPE=$(echo "$INPUT" | jq -r '.notification_type // "notification"')
         MESSAGE=$(echo "$INPUT" | jq -r '.message // "No details"')
@@ -20,7 +22,7 @@ case "$EVENT_TYPE" in
             -u ":${NTFY_TOKEN}" \
             -d "$BODY" "$NTFY_URL"
         ;;
-    stop)
+    (stop)
         SESSION=$(echo "$INPUT" | jq -r '.session_id // "unknown"')
         CWD=$(echo "$INPUT" | jq -r '.cwd // "unknown"')
         BODY=$(printf "**Session:** %s\n**Directory:** %s" "$SESSION" "$CWD")
