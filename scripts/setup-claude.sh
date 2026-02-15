@@ -19,7 +19,7 @@ $CLAUDE plugin install hookify@claude-plugins-official
 $CLAUDE plugin install feature-dev@claude-plugins-official
 $CLAUDE plugin install frontend-design@claude-plugins-official
 $CLAUDE plugin install learning-output-style@claude-plugins-official
-$CLAUDE plugin install ralph-wiggum@claude-plugins-official
+$CLAUDE plugin install ralph-loop@claude-plugins-official
 $CLAUDE plugin install pr-review-toolkit@claude-plugins-official
 $CLAUDE plugin install security-guidance@claude-plugins-official
 $CLAUDE plugin install claude-md-management@claude-plugins-official
