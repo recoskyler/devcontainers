@@ -61,8 +61,3 @@ echo '{ "type": "commonjs" }' > /workspace/.claude/get-shit-done/bin/package.jso
 
 $CLAUDE mcp add --transport stdio -s user serena -- \
     uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context=claude-code --project-from-cwd
-
-$CLAUDE mcp add --transport stdio -s user \
-    playwright -- npx -y @playwright/mcp@latest ${PLAYWRIGHT_MCP_ARGS:-}
-
-$CLAUDE mcp add --transport http figma https://mcp.figma.com/mcp
