@@ -168,6 +168,6 @@ WORKDIR /workspace
 
 RUN npm install -y -g agent-browser
 
-RUN agent-browser install
+RUN agent-browser install --with-deps
 
 USER vscode
