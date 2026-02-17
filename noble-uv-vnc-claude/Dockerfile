@@ -43,6 +43,7 @@ RUN apt-get update \
     x11vnc \
     xclip \
     xdg-utils \
+    netcat \
     xvfb
 
 # Install GH CLI
@@ -84,10 +85,7 @@ ENV NODE_PATH=$NVM_DIR/v${NODE_VERSION}/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v${NODE_VERSION}/bin:$PATH
 
 RUN node -v && npm -v \
-    && npm install -g npm@latest pnpm tsx
-
-# Playwright
-RUN npx playwright install --with-deps firefox chrome
+    && npm install -g npm@latest
 
 # ttyd
 RUN cd /tmp \
@@ -121,7 +119,6 @@ ARG AUTOMEM_ENDPOINT=""
 ARG AUTOMEM_API_KEY=""
 ARG NTFY_URL=""
 ARG NTFY_TOKEN=""
-ARG PLAYWRIGHT_MCP_ARGS="--no-sandbox"
 
 ENV CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
 ENV AUTOMEM_ENDPOINT=${AUTOMEM_ENDPOINT}
@@ -146,15 +143,10 @@ RUN $HOME/.local/bin/uv python install ${PYTHON_VERSION} \
     && $HOME/.local/bin/uv python pin ${PYTHON_VERSION} \
     && $HOME/.local/bin/uv init && $HOME/.local/bin/uv venv
 
-# agent-browser
-
-USER root
-
-RUN npm install -y -g agent-browser
-
-RUN agent-browser install --with-deps
 
 # Remove sudo password
+
+USER root
 
 RUN adduser ubuntu sudo
 
@@ -162,7 +154,15 @@ RUN passwd -d ubuntu
 
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
+# agent-browser
+
 USER ubuntu
+
+WORKDIR /workspace
+
+RUN npm install -y -g agent-browser npm@latest pnpm tsx
+
+RUN agent-browser install
 
 # Requirements
 # COPY ./requirements.txt /workspace/requirements.txt
