@@ -160,9 +160,9 @@ USER ubuntu
 
 WORKDIR /workspace
 
-RUN npm install -y -g agent-browser npm@latest pnpm tsx
+RUN sudo npm install -y -g agent-browser
 
-RUN agent-browser install
+RUN sudo agent-browser install --with-deps
 
 # Requirements
 # COPY ./requirements.txt /workspace/requirements.txt

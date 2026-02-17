@@ -148,6 +148,6 @@ USER bun
 
 WORKDIR /workspace
 
-RUN npm install -g agent-browser
+RUN sudo npm install -y -g agent-browser
 
-RUN agent-browser install
+RUN sudo agent-browser install --with-deps
