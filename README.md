@@ -57,7 +57,7 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
             # shut down after the process ends
             command: sleep infinity
 
-            # Playwright/Chrome/VNC might need the following options:
+            # Chrome/VNC might need the following options:
 
             security_opt:
                 - seccomp:unconfined
@@ -181,7 +181,6 @@ Each image has its own Dockerfile in a folder named after the image.
 | `VARIANT` | per image (see Images table) | Base image variant |
 | `NODE_VERSION` | `24.12.0` | Node.js version installed via NVM |
 | `PYTHON_VERSION` | `3` / `3.13` (noble) | Python version |
-| `PLAYWRIGHT_MCP_ARGS` | `--headless --no-sandbox` | Extra args for Playwright MCP server |
 
 ## Runtime Environment Variables
 

@@ -87,9 +87,6 @@ ENV PATH=$NVM_DIR/versions/node/v${NODE_VERSION}/bin:$PATH
 RUN node -v && npm -v \
     && npm install -g npm@latest
 
-# Playwright
-RUN npx playwright install --with-deps firefox chrome
-
 # ttyd
 RUN cd /tmp \
     && git clone https://github.com/tsl0922/ttyd.git \
@@ -122,7 +119,6 @@ ARG AUTOMEM_ENDPOINT=""
 ARG AUTOMEM_API_KEY=""
 ARG NTFY_URL=""
 ARG NTFY_TOKEN=""
-ARG PLAYWRIGHT_MCP_ARGS="--no-sandbox"
 
 ENV CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
 ENV AUTOMEM_ENDPOINT=${AUTOMEM_ENDPOINT}

@@ -90,9 +90,6 @@ RUN cd /tmp \
     && cmake .. && make && make install \
     && rm -rf /tmp/ttyd
 
-# Playwright
-RUN npx playwright install --with-deps firefox chrome
-
 # Cleanup
 RUN apt-get autoremove -y \
     && apt-get clean \
@@ -118,7 +115,6 @@ ARG AUTOMEM_ENDPOINT=""
 ARG AUTOMEM_API_KEY=""
 ARG NTFY_URL=""
 ARG NTFY_TOKEN=""
-ARG PLAYWRIGHT_MCP_ARGS="--headless --no-sandbox"
 
 ENV CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
 ENV AUTOMEM_ENDPOINT=${AUTOMEM_ENDPOINT}
