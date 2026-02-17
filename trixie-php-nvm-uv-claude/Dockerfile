@@ -52,7 +52,7 @@ RUN apt-get update \
     xclip \
     xvfb \
     zip \
-    netcat
+    netcat-openbsd
 
 # Install GH CLI
 RUN mkdir -p -m 755 /etc/apt/keyrings \

@@ -35,7 +35,7 @@ RUN apt-get update \
     unzip \
     vim \
     wget \
-    netcat \
+    netcat-openbsd \
     xclip
 
 # Stripe CLI
