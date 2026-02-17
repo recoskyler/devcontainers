@@ -144,10 +144,10 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # agent-browser
 
-USER bun
-
 WORKDIR /workspace
 
 RUN npm install -y -g agent-browser
 
 RUN agent-browser install
+
+USER bun

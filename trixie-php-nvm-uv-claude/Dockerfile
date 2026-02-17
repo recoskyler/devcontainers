@@ -164,10 +164,10 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # agent-browser
 
-USER vscode
-
 WORKDIR /workspace
 
 RUN npm install -y -g agent-browser
 
-RUN agent-browser install --with-deps
+RUN agent-browser install
+
+USER vscode
