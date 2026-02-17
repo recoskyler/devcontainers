@@ -168,6 +168,6 @@ USER vscode
 
 WORKDIR /workspace
 
-RUN npm install -y -g agent-browser
+RUN sudo npm install -y -g agent-browser
 
-RUN agent-browser install --with-deps
+RUN sudo agent-browser install --with-deps
