@@ -43,7 +43,7 @@ RUN apt-get update \
     x11vnc \
     xclip \
     xdg-utils \
-    netcat \
+    netcat-openbsd \
     xvfb
 
 # Install GH CLI
