@@ -149,9 +149,9 @@ Each image has its own Dockerfile in a folder named after the image.
 - **Node.js** via NVM (default: 24.12.0)
 - **UV** (Python package manager)
 - **Claude Code** CLI + plugins (ECC, Superpowers, official plugin suite)
-- **MCP servers**: Serena, Playwright, Context7, Automem, Figma
+- **MCP servers**: Serena, Context7, Automem
 - **GSD** (Get Shit Done for Claude Code)
-- **Playwright** + Chrome
+- **Agent Browser** + Chrome
 - **CLI tools**: git, curl, wget, vim, nano, jq, tmux, xclip, openssh-client, gnupg, cmake, less, unzip, gh, pnpm, tsx
 - **ttyd** (web terminal)
 - **Database clients**: postgresql-client, default-mysql-client, redis-tools
