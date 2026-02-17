@@ -35,6 +35,7 @@ RUN apt-get update \
     unzip \
     vim \
     wget \
+    netcat \
     xclip
 
 # Stripe CLI
@@ -135,15 +136,9 @@ RUN bash /tmp/setup-claude.sh && rm -f /tmp/setup-claude.sh
 
 RUN echo 'source $HOME/.local/bin/init-claude-mcp.sh 2>/dev/null' >> /home/bun/.bashrc
 
-# agent-browser
+# Remove sudo password
 
 USER root
-
-RUN npm install -y -g agent-browser
-
-RUN agent-browser install --with-deps
-
-# Remove sudo password
 
 RUN adduser bun sudo
 
@@ -151,4 +146,12 @@ RUN passwd -d bun
 
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
+# agent-browser
+
 USER bun
+
+WORKDIR /workspace
+
+RUN npm install -g agent-browser
+
+RUN agent-browser install
