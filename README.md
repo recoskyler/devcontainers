@@ -141,6 +141,7 @@ Each image has its own Dockerfile in a folder named after the image.
 | `ghcr.io/recoskyler/noble-uv-vnc-claude:latest` | `ubuntu:noble` | `noble` | `ubuntu` | `/home/ubuntu` |
 | `ghcr.io/recoskyler/trixie-bun-nvm-uv-claude:latest` | `oven/bun:debian` | `debian` | `bun` | `/home/bun` |
 | `ghcr.io/recoskyler/trixie-php-nvm-uv-claude:latest` | `mcr.microsoft.com/devcontainers/php:8.3-trixie` | `8.3-trixie` | `vscode` | `home/vscode` |
+| `ghcr.io/recoskyler/trixie-rust-nvm-uv-claude:latest` | `rust:trixie` | `trixie` | `rust` | `/home/rust` |
 
 ## What's Included
 
@@ -167,6 +168,14 @@ Each image has its own Dockerfile in a folder named after the image.
 - **PHP** (from MS devcontainers base)
 - **Composer**
 - PHP Redis extension, pdo_mysql, pcntl
+
+### Rust images (`trixie-rust-nvm-uv-claude`)
+
+- **Rust** toolchain (via rustup)
+- **cargo-watch** (file watcher / auto-rebuild)
+- **cargo-edit** (`cargo add`/`cargo rm`)
+- **cargo-nextest** (modern test runner)
+- **rustfmt** + **clippy**
 
 ### Noble image (`noble-uv-vnc-claude`)
 
