@@ -23,9 +23,7 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
                 context: .
                 dockerfile: Dockerfile
                 args:
-                    VARIANT: debian
                     NODE_VERSION: '24.12.0'
-                    PYTHON_VERSION: '3.13'
 
             ports:
                 - "0.0.0.0:7681:7681" # TTYD
@@ -134,18 +132,18 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
 
 ## Images
 
-Each image has its own Dockerfile in a folder named after the image.
+All images extend a shared base (`base/Dockerfile` — `debian:trixie`) and run as user `dev` (UID 1000, home `/home/dev`).
 
-| Image | Base | `VARIANT` | User | Home |
-|-------|------|-----------|------|------|
-| `ghcr.io/recoskyler/noble-uv-vnc-claude:latest` | `ubuntu:noble` | `noble` | `ubuntu` | `/home/ubuntu` |
-| `ghcr.io/recoskyler/trixie-bun-nvm-uv-claude:latest` | `oven/bun:debian` | `debian` | `bun` | `/home/bun` |
-| `ghcr.io/recoskyler/trixie-php-nvm-uv-claude:latest` | `mcr.microsoft.com/devcontainers/php:8.3-trixie` | `8.3-trixie` | `vscode` | `home/vscode` |
-| `ghcr.io/recoskyler/trixie-rust-nvm-uv-claude:latest` | `rust:trixie` | `trixie` | `rust` | `/home/rust` |
+| Image | Extra stack |
+|-------|-------------|
+| `ghcr.io/recoskyler/trixie-bun-nvm-uv-claude:latest` | Bun |
+| `ghcr.io/recoskyler/trixie-php-nvm-uv-claude:latest` | PHP 8.4, Composer |
+| `ghcr.io/recoskyler/trixie-rust-nvm-uv-claude:latest` | Rust toolchain |
+| `ghcr.io/recoskyler/trixie-vnc-nvm-uv-claude:latest` | x11vnc, Xvfb |
 
 ## What's Included
 
-### All images
+### All images (base)
 
 - **Node.js** via NVM (default: 24.12.0)
 - **UV** (Python package manager)
@@ -154,42 +152,40 @@ Each image has its own Dockerfile in a folder named after the image.
 - **GSD** (Get Shit Done for Claude Code)
 - **Agent Browser** + Chrome
 - **CLI tools**: git, curl, wget, vim, nano, jq, tmux, xclip, openssh-client, gnupg, cmake, less, unzip, gh, pnpm, tsx
+- **Search & file tools**: ripgrep, fd-find, fzf, bat, tree
+- **Networking & HTTP**: httpie, netcat
+- **Cloud & infra**: AWS CLI v2, Terraform, kubectl, Stripe CLI
+- **Utilities**: duf, git-delta, tldr
 - **ttyd** (web terminal)
 - **Database clients**: postgresql-client, default-mysql-client, redis-tools
 - **ntfy** notification hooks (Notification + Stop events)
 
-### Bun images (`trixie-bun-nvm-uv-claude`)
+### Bun (`trixie-bun-nvm-uv-claude`)
 
-- **Bun** runtime
-- **Stripe CLI**
+- **Bun** runtime (`bun`, `bunx`)
 
-### PHP images (`trixie-php-nvm-uv-claude`)
+### PHP (`trixie-php-nvm-uv-claude`)
 
-- **PHP** (from MS devcontainers base)
+- **PHP 8.4** (cli, curl, mbstring, mysql, redis, xml, zip)
 - **Composer**
-- PHP Redis extension, pdo_mysql, pcntl
 
-### Rust images (`trixie-rust-nvm-uv-claude`)
+### Rust (`trixie-rust-nvm-uv-claude`)
 
 - **Rust** toolchain (via rustup)
+- **rustfmt** + **clippy**
 - **cargo-watch** (file watcher / auto-rebuild)
 - **cargo-edit** (`cargo add`/`cargo rm`)
 - **cargo-nextest** (modern test runner)
-- **rustfmt** + **clippy**
 
-### Noble image (`noble-uv-vnc-claude`)
+### VNC (`trixie-vnc-nvm-uv-claude`)
 
-- **Ubuntu Noble** base
-- **Python venv** setup via UV (default: 3.13)
-- x11vnc, xvfb
+- **x11vnc**, **Xvfb**, xdg-utils
 
 ## Build Arguments
 
 | Argument | Default | Description |
 |----------|---------|-------------|
-| `VARIANT` | per image (see Images table) | Base image variant |
 | `NODE_VERSION` | `24.12.0` | Node.js version installed via NVM |
-| `PYTHON_VERSION` | `3` / `3.13` (noble) | Python version |
 
 ## Runtime Environment Variables
 
@@ -207,7 +203,12 @@ Secret-dependent MCP servers and ntfy hooks are configured at **runtime** (first
 
 ## CI/CD
 
-The GitHub Actions workflow (`.github/workflows/build.yml`) builds and pushes base images on every push to `latest` branch or when a version tag is created. Secret-dependent MCP servers and hooks are configured at runtime via environment variables.
+Two GitHub Actions workflows build and verify images:
+
+- **`build.yml`** — Runs on push to `latest` or version tags. Builds the base image with GHA cache, then builds and pushes all 4 variants to GHCR in parallel (matrix strategy).
+- **`check.yml`** — Runs on PRs to `latest`. Same structure but read-only cache (no `cache-to`) and no push to GHCR.
+
+Both workflows use a local `registry:2` service container and `build-contexts` to remap `FROM devcontainer-base:latest` at build time, requiring zero Dockerfile changes.
 
 Images are published to GHCR at `ghcr.io/<owner>/<image-name>`.
 
@@ -225,9 +226,12 @@ Images are published to GHCR at `ghcr.io/<owner>/<image-name>`.
 Build locally:
 
 ```bash
+# Build base first
+docker build -t devcontainer-base:latest -f base/Dockerfile .
+
+# Then build a variant
 docker build \
   -f trixie-bun-nvm-uv-claude/Dockerfile \
-  --build-arg VARIANT=debian \
   --build-arg NODE_VERSION=24.12.0 \
   -t trixie-bun-nvm-uv-claude .
 ```
