@@ -29,6 +29,9 @@ jobs:
           - name: noble-uv-vnc-claude
             dockerfile: noble-uv-vnc-claude/Dockerfile
             variant: noble
+          - name: trixie-rust-nvm-uv-claude
+            dockerfile: trixie-rust-nvm-uv-claude/Dockerfile
+            variant: trixie
 
     steps:
       - name: Checkout
