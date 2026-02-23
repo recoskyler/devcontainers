@@ -9,4 +9,4 @@ docs/plans
 .env
 node_modules
 .serena
-.CLAUDE.md
+CLAUDE.md
