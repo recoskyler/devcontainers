@@ -28,3 +28,11 @@ This is a project containing pre-configured Dockerfiles for building and hosting
 
 - Use `gh` CLI, and the `act` extension to test and validate the CI/CD: `gh act push`
 - Use `docker` CLI to test and validate the Dockerfiles
+
+## NEVER
+
+- Push to main PR review
+- Push to main testing CI/CD
+- Push to main testing Dockerfiles
+- Push to main updating documentation if necessary
+- Add co-author to commits
