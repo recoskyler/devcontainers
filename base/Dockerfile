@@ -97,7 +97,7 @@ RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | gpg --d
 
 # ── User setup ───────────────────────────────────────────────────────────────
 
-RUN id dev &>/dev/null || useradd -m -s /bin/bash -u 1000 dev
+RUN id dev >/dev/null 2>&1 || useradd -m -s /bin/bash -u 1000 dev
 
 RUN chsh -s $(which bash) dev \
     && echo 'export PS1="\e[01;32m\u\e[m:\e[01;34m\w\e[m\$ "' >> /home/dev/.bashrc
