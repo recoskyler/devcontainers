@@ -7,7 +7,8 @@ USER dev
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
     && . "$HOME/.cargo/env" \
     && rustup component add rustfmt clippy \
-    && cargo install cargo-watch cargo-edit cargo-nextest \
+    && cargo install cargo-watch cargo-edit \
+    && cargo install --locked cargo-nextest \
     && rm -rf "$HOME/.cargo/registry" "$HOME/.cargo/git"
 
 RUN echo 'source "$HOME/.cargo/env"' >> /home/dev/.bashrc
