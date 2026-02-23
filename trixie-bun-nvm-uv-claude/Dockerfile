@@ -14,3 +14,5 @@ RUN chown -R dev:dev /home/dev
 
 USER dev
 ENV HOME=/home/dev
+
+RUN printf '\n### Bun\n- `bun`, `bunx`\n' >> $HOME/.claude/CLAUDE.md

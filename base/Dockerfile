@@ -155,6 +155,10 @@ ENV HOME=/home/dev
 # Claude Code CLI
 RUN curl -fsSL https://claude.ai/install.sh | bash
 
+# User-level CLAUDE.md for the devcontainer
+RUN mkdir -p $HOME/.claude
+COPY --chown=dev:dev base/devcontainer-claude.md $HOME/.claude/CLAUDE.md
+
 WORKDIR /workspace
 
 # UV

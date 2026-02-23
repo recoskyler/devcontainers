@@ -35,3 +35,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN chown -R dev:dev /home/dev
 
 USER dev
+ENV HOME=/home/dev
+
+RUN printf '\n### PHP 8.4\n- `php`, `composer`\n' >> $HOME/.claude/CLAUDE.md

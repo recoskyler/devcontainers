@@ -11,3 +11,5 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
     && rm -rf "$HOME/.cargo/registry" "$HOME/.cargo/git"
 
 RUN echo 'source "$HOME/.cargo/env"' >> /home/dev/.bashrc
+
+RUN printf '\n### Rust\n- `rustc`, `cargo`, `rustup`, `rustfmt`, `clippy`\n- `cargo-watch`, `cargo-edit`, `cargo-nextest`\n' >> $HOME/.claude/CLAUDE.md

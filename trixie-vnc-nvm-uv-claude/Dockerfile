@@ -16,3 +16,6 @@ RUN apt-get update \
 RUN chown -R dev:dev /home/dev
 
 USER dev
+ENV HOME=/home/dev
+
+RUN printf '\n### VNC\n- `x11vnc`, `xvfb-run`, `xdg-open`\n' >> $HOME/.claude/CLAUDE.md
