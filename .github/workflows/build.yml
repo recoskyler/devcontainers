@@ -9,12 +9,12 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
-  build:
+  # ── Phase 1: Build base image + populate GHA cache ──────────────────────────
+  base:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
     permissions:
       contents: read
-      packages: write
 
     steps:
       - name: Checkout
@@ -22,17 +22,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          driver: docker
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # ── Phase 1: Build base image (local only) ─────────────────────────────
 
       - name: Build base image
         uses: docker/build-push-action@v6
@@ -41,89 +30,83 @@ jobs:
           file: base/Dockerfile
           push: false
           tags: devcontainer-base:latest
+          cache-from: type=gha,scope=base
+          cache-to: type=gha,mode=max,scope=base
 
-      # ── Phase 2: Build and push language images ─────────────────────────────
+  # ── Phase 2: Build and push language images (parallel) ──────────────────────
+  variants:
+    needs: base
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
 
-      # -- trixie-bun-nvm-uv-claude --
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: trixie-bun-nvm-uv-claude
+            scope: bun
+          - name: trixie-php-nvm-uv-claude
+            scope: php
+          - name: trixie-rust-nvm-uv-claude
+            scope: rust
+          - name: trixie-vnc-nvm-uv-claude
+            scope: vnc
 
-      - name: Extract metadata (trixie-bun-nvm-uv-claude)
-        id: meta-bun
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host
+          buildkitd-config-inline: |
+            [registry."localhost:5000"]
+              http = true
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Rebuild base from cache and push to local registry
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: base/Dockerfile
+          push: true
+          tags: localhost:5000/devcontainer-base:latest
+          cache-from: type=gha,scope=base
+
+      - name: Extract metadata
+        id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/trixie-bun-nvm-uv-claude
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.name }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
 
-      - name: Build and push trixie-bun-nvm-uv-claude
+      - name: Build and push ${{ matrix.name }}
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: trixie-bun-nvm-uv-claude/Dockerfile
+          file: ${{ matrix.name }}/Dockerfile
           push: true
-          tags: ${{ steps.meta-bun.outputs.tags }}
-          labels: ${{ steps.meta-bun.outputs.labels }}
-
-      # -- trixie-php-nvm-uv-claude --
-
-      - name: Extract metadata (trixie-php-nvm-uv-claude)
-        id: meta-php
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/trixie-php-nvm-uv-claude
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-
-      - name: Build and push trixie-php-nvm-uv-claude
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: trixie-php-nvm-uv-claude/Dockerfile
-          push: true
-          tags: ${{ steps.meta-php.outputs.tags }}
-          labels: ${{ steps.meta-php.outputs.labels }}
-
-      # -- trixie-rust-nvm-uv-claude --
-
-      - name: Extract metadata (trixie-rust-nvm-uv-claude)
-        id: meta-rust
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/trixie-rust-nvm-uv-claude
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-
-      - name: Build and push trixie-rust-nvm-uv-claude
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: trixie-rust-nvm-uv-claude/Dockerfile
-          push: true
-          tags: ${{ steps.meta-rust.outputs.tags }}
-          labels: ${{ steps.meta-rust.outputs.labels }}
-
-      # -- trixie-vnc-nvm-uv-claude --
-
-      - name: Extract metadata (trixie-vnc-nvm-uv-claude)
-        id: meta-vnc
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/trixie-vnc-nvm-uv-claude
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-
-      - name: Build and push trixie-vnc-nvm-uv-claude
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: trixie-vnc-nvm-uv-claude/Dockerfile
-          push: true
-          tags: ${{ steps.meta-vnc.outputs.tags }}
-          labels: ${{ steps.meta-vnc.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
+          cache-from: type=gha,scope=${{ matrix.scope }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.scope }}

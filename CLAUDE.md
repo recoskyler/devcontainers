@@ -40,8 +40,10 @@ This is a project containing pre-configured Dockerfiles for building and hosting
 
 ## CI/CD notes
 
-- Both workflows use buildx with `driver: docker` so language images can resolve `FROM devcontainer-base:latest` from the local daemon
-- `type=gha` cache is not compatible with the `docker` driver
+- Both workflows use a two-job structure: `base` builds the base image with GHA cache, then `variants` runs 4 parallel matrix jobs
+- Variant jobs use a `registry:2` service container + `build-contexts` to remap `FROM devcontainer-base:latest` to the local registry — no Dockerfile changes needed
+- `build.yml` writes GHA cache (`cache-to`); `check.yml` only reads it (`cache-from`)
+- GHA cache scopes: `base`, `bun`, `php`, `rust`, `vnc`
 
 ## Testing and validation
 
