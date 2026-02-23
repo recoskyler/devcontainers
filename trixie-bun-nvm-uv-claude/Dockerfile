@@ -1,6 +1,7 @@
 FROM devcontainer-base:latest
 
 USER root
+ENV HOME=/root
 
 # ── Bun ───────────────────────────────────────────────────────────────────────
 
@@ -12,3 +13,4 @@ RUN curl -fsSL https://bun.sh/install | bash \
 RUN chown -R dev:dev /home/dev
 
 USER dev
+ENV HOME=/home/dev
