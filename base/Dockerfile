@@ -41,6 +41,7 @@ RUN apt-get update \
     python3-pip \
     redis-tools \
     ripgrep \
+    tealdeer \
     sudo \
     tmux \
     tree \
