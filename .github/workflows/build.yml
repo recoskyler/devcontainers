@@ -4,6 +4,10 @@ on:
   push:
     branches: [latest]
     tags: ["v*"]
+    paths:
+      - 'base/**'
+      - 'trixie-*/Dockerfile'
+      - 'scripts/*.sh'
 
 env:
   REGISTRY: ghcr.io

@@ -3,6 +3,10 @@ name: Check Docker Builds
 on:
   pull_request:
     branches: [latest]
+    paths:
+      - 'base/**'
+      - 'trixie-*/Dockerfile'
+      - 'scripts/*.sh'
 
 jobs:
   # ── Phase 1: Build base image (restore from GHA cache) ─────────────────────
