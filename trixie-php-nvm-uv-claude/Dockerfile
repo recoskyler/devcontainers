@@ -170,4 +170,6 @@ RUN npm install -y -g agent-browser
 
 RUN agent-browser install --with-deps
 
+RUN chown -R vscode:vscode /home/vscode
+
 USER vscode

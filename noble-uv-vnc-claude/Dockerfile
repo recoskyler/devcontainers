@@ -162,6 +162,8 @@ RUN npm install -y -g agent-browser
 
 RUN agent-browser install --with-deps
 
+RUN chown -R ubuntu:ubuntu /home/ubuntu
+
 USER ubuntu
 
 # Requirements
