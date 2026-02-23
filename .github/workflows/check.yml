@@ -4,9 +4,6 @@ on:
   pull_request:
     branches: [latest]
 
-env:
-  REGISTRY: ghcr.io
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,7 +18,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          driver-opts: network=host
+          driver: docker
 
       # ── Phase 1: Build base image ──────────────────────────────────────────
 
@@ -31,10 +28,7 @@ jobs:
           context: .
           file: base/Dockerfile
           push: false
-          load: true
           tags: devcontainer-base:latest
-          cache-from: type=gha,scope=base
-          cache-to: type=gha,mode=max,scope=base
 
       # ── Phase 2: Build language images (no push) ──────────────────────────
 
@@ -44,8 +38,6 @@ jobs:
           context: .
           file: trixie-bun-nvm-uv-claude/Dockerfile
           push: false
-          cache-from: type=gha,scope=trixie-bun-nvm-uv-claude
-          cache-to: type=gha,mode=max,scope=trixie-bun-nvm-uv-claude
 
       - name: Build trixie-php-nvm-uv-claude
         uses: docker/build-push-action@v6
@@ -53,8 +45,6 @@ jobs:
           context: .
           file: trixie-php-nvm-uv-claude/Dockerfile
           push: false
-          cache-from: type=gha,scope=trixie-php-nvm-uv-claude
-          cache-to: type=gha,mode=max,scope=trixie-php-nvm-uv-claude
 
       - name: Build trixie-rust-nvm-uv-claude
         uses: docker/build-push-action@v6
@@ -62,8 +52,6 @@ jobs:
           context: .
           file: trixie-rust-nvm-uv-claude/Dockerfile
           push: false
-          cache-from: type=gha,scope=trixie-rust-nvm-uv-claude
-          cache-to: type=gha,mode=max,scope=trixie-rust-nvm-uv-claude
 
       - name: Build trixie-vnc-nvm-uv-claude
         uses: docker/build-push-action@v6
@@ -71,5 +59,3 @@ jobs:
           context: .
           file: trixie-vnc-nvm-uv-claude/Dockerfile
           push: false
-          cache-from: type=gha,scope=trixie-vnc-nvm-uv-claude
-          cache-to: type=gha,mode=max,scope=trixie-vnc-nvm-uv-claude
