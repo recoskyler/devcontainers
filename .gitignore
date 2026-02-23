@@ -1,0 +1,11 @@
+docs/plans
+.claude
+.vscode
+.idea
+*.log
+*.tmp
+*.bak
+*.swp
+.env
+node_modules
+.serena
