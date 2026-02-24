@@ -59,10 +59,10 @@ Plans:
   1. `build.yml` matrix includes the flutter variant and the image pushes to GHCR on merge to main
   2. `check.yml` matrix includes the flutter variant and blocks PR merge on build failure
   3. GHA cache scope `flutter` is configured and does not collide with existing variant cache scopes
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md — Add flutter variant to build.yml and check.yml with three-tier chain and isolated cache scope
 
 ## Progress
 
@@ -73,4 +73,4 @@ Phases execute in numeric order: 1 -> 2 -> 3
 |-------|----------------|--------|-----------|
 | 1. Dockerfile Construction | 2/2 | Complete | 2026-02-24 |
 | 2. Runtime Validation | 2/3 | Gap closure | - |
-| 3. CI/CD Integration | 0/? | Not started | - |
+| 3. CI/CD Integration | 0/1 | Not started | - |
