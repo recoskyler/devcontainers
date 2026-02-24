@@ -97,36 +97,36 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FLUT-01 | — | Pending |
-| FLUT-02 | — | Pending |
-| SDK-01 | — | Pending |
-| SDK-02 | — | Pending |
-| SDK-03 | — | Pending |
-| SDK-04 | — | Pending |
-| EMUL-01 | — | Pending |
-| EMUL-02 | — | Pending |
-| EMUL-03 | — | Pending |
-| IDE-01 | — | Pending |
-| IDE-02 | — | Pending |
-| TOOL-01 | — | Pending |
-| TOOL-02 | — | Pending |
-| TOOL-03 | — | Pending |
-| DISP-01 | — | Pending |
-| DISP-02 | — | Pending |
-| WEB-01 | — | Pending |
-| WEB-02 | — | Pending |
-| CICD-01 | — | Pending |
-| CICD-02 | — | Pending |
-| CICD-03 | — | Pending |
-| CONV-01 | — | Pending |
-| CONV-02 | — | Pending |
-| CONV-03 | — | Pending |
+| FLUT-01 | Phase 1 | Pending |
+| FLUT-02 | Phase 1 | Pending |
+| SDK-01 | Phase 1 | Pending |
+| SDK-02 | Phase 1 | Pending |
+| SDK-03 | Phase 1 | Pending |
+| SDK-04 | Phase 1 | Pending |
+| EMUL-01 | Phase 1 | Pending |
+| EMUL-02 | Phase 1 | Pending |
+| EMUL-03 | Phase 1 | Pending |
+| IDE-01 | Phase 1 | Pending |
+| IDE-02 | Phase 2 | Pending |
+| TOOL-01 | Phase 1 | Pending |
+| TOOL-02 | Phase 2 | Pending |
+| TOOL-03 | Phase 2 | Pending |
+| DISP-01 | Phase 1 | Pending |
+| DISP-02 | Phase 2 | Pending |
+| WEB-01 | Phase 1 | Pending |
+| WEB-02 | Phase 2 | Pending |
+| CICD-01 | Phase 3 | Pending |
+| CICD-02 | Phase 3 | Pending |
+| CICD-03 | Phase 3 | Pending |
+| CONV-01 | Phase 1 | Pending |
+| CONV-02 | Phase 1 | Pending |
+| CONV-03 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 24 total
-- Mapped to phases: 0
-- Unmapped: 24
+- Mapped to phases: 24
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-24*
-*Last updated: 2026-02-24 after initial definition*
+*Last updated: 2026-02-24 after roadmap creation*
