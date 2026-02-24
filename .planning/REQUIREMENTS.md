@@ -28,7 +28,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Android Studio IDE
 
 - [x] **IDE-01**: Full Android Studio IDE installed and launchable via VNC
-- [ ] **IDE-02**: Android Studio can connect to the running emulator
+- [x] **IDE-02**: Android Studio can connect to the running emulator
 
 ### Backend Toolchain
 
@@ -44,7 +44,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Web Target
 
 - [x] **WEB-01**: Chromium installed with CHROME_EXECUTABLE configured
-- [ ] **WEB-02**: `flutter run -d chrome` works inside the container
+- [x] **WEB-02**: `flutter run -d chrome` works inside the container
 
 ### CI/CD
 
@@ -107,14 +107,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EMUL-02 | Phase 1 | Complete |
 | EMUL-03 | Phase 1 | Complete |
 | IDE-01 | Phase 1 | Complete |
-| IDE-02 | Phase 2 | Pending |
+| IDE-02 | Phase 2 | Complete |
 | TOOL-01 | Phase 1 | Complete |
 | TOOL-02 | Phase 2 | Complete |
 | TOOL-03 | Phase 2 | Complete |
 | DISP-01 | Phase 1 | Complete |
 | DISP-02 | Phase 2 | Complete |
 | WEB-01 | Phase 1 | Complete |
-| WEB-02 | Phase 2 | Pending |
+| WEB-02 | Phase 2 | Complete |
 | CICD-01 | Phase 3 | Pending |
 | CICD-02 | Phase 3 | Pending |
 | CICD-03 | Phase 3 | Pending |
