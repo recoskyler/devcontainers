@@ -28,11 +28,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Android SDK components (cmdline-tools, platform-tools, build-tools, platform API 35) are present at expected paths with correct environment variables
   4. Android emulator binary, system image, and pre-created AVD exist in the image
   5. Android Studio is installed and the Dockerfile follows all project conventions (extends VNC variant, POSIX shell, USER/HOME handling, CLAUDE.md append)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md — System-level installs (Java, cmdline-tools, Android Studio, Chromium, GUI libs)
+- [ ] 01-02-PLAN.md — User-level installs + validation (FVM/Flutter, SDK components, AVD, Rust, CLAUDE.md, flutter doctor)
 
 ### Phase 2: Runtime Validation
 **Goal**: The built image works end-to-end at runtime -- emulator boots visibly via VNC, Android Studio connects to it, Flutter web target runs, and inherited backend tools are confirmed functional
@@ -69,6 +69,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Dockerfile Construction | 0/? | Not started | - |
+| 1. Dockerfile Construction | 0/2 | Not started | - |
 | 2. Runtime Validation | 0/? | Not started | - |
 | 3. CI/CD Integration | 0/? | Not started | - |
