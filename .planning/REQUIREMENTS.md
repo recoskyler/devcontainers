@@ -48,9 +48,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### CI/CD
 
-- [ ] **CICD-01**: Variant added to build.yml GitHub Actions matrix
-- [ ] **CICD-02**: Variant added to check.yml GitHub Actions matrix
-- [ ] **CICD-03**: GHA cache scope configured for the variant
+- [x] **CICD-01**: Variant added to build.yml GitHub Actions matrix
+- [x] **CICD-02**: Variant added to check.yml GitHub Actions matrix
+- [x] **CICD-03**: GHA cache scope configured for the variant
 
 ### Conventions
 
@@ -115,9 +115,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DISP-02 | Phase 2 | Complete |
 | WEB-01 | Phase 1 | Complete |
 | WEB-02 | Phase 2 | Complete |
-| CICD-01 | Phase 3 | Pending |
-| CICD-02 | Phase 3 | Pending |
-| CICD-03 | Phase 3 | Pending |
+| CICD-01 | Phase 3 | Complete |
+| CICD-02 | Phase 3 | Complete |
+| CICD-03 | Phase 3 | Complete |
 | CONV-01 | Phase 1 | Complete |
 | CONV-02 | Phase 1 | Complete |
 | CONV-03 | Phase 1 | Complete |
