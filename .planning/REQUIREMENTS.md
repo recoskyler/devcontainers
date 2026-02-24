@@ -14,7 +14,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Android SDK
 
-- [ ] **SDK-01**: OpenJDK installed with JAVA_HOME configured
+- [x] **SDK-01**: OpenJDK installed with JAVA_HOME configured
 - [ ] **SDK-02**: Android SDK cmdline-tools, platform-tools, and build-tools installed
 - [ ] **SDK-03**: Android platform (API 35) installed
 - [ ] **SDK-04**: Android SDK licenses accepted at build time
@@ -27,7 +27,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Android Studio IDE
 
-- [ ] **IDE-01**: Full Android Studio IDE installed and launchable via VNC
+- [x] **IDE-01**: Full Android Studio IDE installed and launchable via VNC
 - [ ] **IDE-02**: Android Studio can connect to the running emulator
 
 ### Backend Toolchain
@@ -38,12 +38,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Display & Devices
 
-- [ ] **DISP-01**: X11VNC/Xvfb display forwarding works for emulator and Studio GUI
+- [x] **DISP-01**: X11VNC/Xvfb display forwarding works for emulator and Studio GUI
 - [ ] **DISP-02**: ADB wireless debugging documented for physical device connectivity
 
 ### Web Target
 
-- [ ] **WEB-01**: Chromium installed with CHROME_EXECUTABLE configured
+- [x] **WEB-01**: Chromium installed with CHROME_EXECUTABLE configured
 - [ ] **WEB-02**: `flutter run -d chrome` works inside the container
 
 ### CI/CD
@@ -54,9 +54,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Conventions
 
-- [ ] **CONV-01**: Dockerfile extends the VNC variant (or inlines VNC packages from base)
+- [x] **CONV-01**: Dockerfile extends the VNC variant (or inlines VNC packages from base)
 - [ ] **CONV-02**: Tools section appended to `~/.claude/CLAUDE.md`
-- [ ] **CONV-03**: POSIX-compatible shell redirects used in Dockerfile RUN commands
+- [x] **CONV-03**: POSIX-compatible shell redirects used in Dockerfile RUN commands
 
 ## v2 Requirements
 
@@ -99,28 +99,28 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | FLUT-01 | Phase 1 | Pending |
 | FLUT-02 | Phase 1 | Pending |
-| SDK-01 | Phase 1 | Pending |
+| SDK-01 | Phase 1 | Complete |
 | SDK-02 | Phase 1 | Pending |
 | SDK-03 | Phase 1 | Pending |
 | SDK-04 | Phase 1 | Pending |
 | EMUL-01 | Phase 1 | Pending |
 | EMUL-02 | Phase 1 | Pending |
 | EMUL-03 | Phase 1 | Pending |
-| IDE-01 | Phase 1 | Pending |
+| IDE-01 | Phase 1 | Complete |
 | IDE-02 | Phase 2 | Pending |
 | TOOL-01 | Phase 1 | Pending |
 | TOOL-02 | Phase 2 | Pending |
 | TOOL-03 | Phase 2 | Pending |
-| DISP-01 | Phase 1 | Pending |
+| DISP-01 | Phase 1 | Complete |
 | DISP-02 | Phase 2 | Pending |
-| WEB-01 | Phase 1 | Pending |
+| WEB-01 | Phase 1 | Complete |
 | WEB-02 | Phase 2 | Pending |
 | CICD-01 | Phase 3 | Pending |
 | CICD-02 | Phase 3 | Pending |
 | CICD-03 | Phase 3 | Pending |
-| CONV-01 | Phase 1 | Pending |
+| CONV-01 | Phase 1 | Complete |
 | CONV-02 | Phase 1 | Pending |
-| CONV-03 | Phase 1 | Pending |
+| CONV-03 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 24 total
