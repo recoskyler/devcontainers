@@ -33,13 +33,13 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Backend Toolchain
 
 - [x] **TOOL-01**: Rust toolchain installed via rustup (cargo, rustc, clippy, rustfmt)
-- [ ] **TOOL-02**: NVM + Node.js LTS available (inherited from base)
-- [ ] **TOOL-03**: UV available for Python package management (inherited from base)
+- [x] **TOOL-02**: NVM + Node.js LTS available (inherited from base)
+- [x] **TOOL-03**: UV available for Python package management (inherited from base)
 
 ### Display & Devices
 
 - [x] **DISP-01**: X11VNC/Xvfb display forwarding works for emulator and Studio GUI
-- [ ] **DISP-02**: ADB wireless debugging documented for physical device connectivity
+- [x] **DISP-02**: ADB wireless debugging documented for physical device connectivity
 
 ### Web Target
 
@@ -109,10 +109,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | IDE-01 | Phase 1 | Complete |
 | IDE-02 | Phase 2 | Pending |
 | TOOL-01 | Phase 1 | Complete |
-| TOOL-02 | Phase 2 | Pending |
-| TOOL-03 | Phase 2 | Pending |
+| TOOL-02 | Phase 2 | Complete |
+| TOOL-03 | Phase 2 | Complete |
 | DISP-01 | Phase 1 | Complete |
-| DISP-02 | Phase 2 | Pending |
+| DISP-02 | Phase 2 | Complete |
 | WEB-01 | Phase 1 | Complete |
 | WEB-02 | Phase 2 | Pending |
 | CICD-01 | Phase 3 | Pending |

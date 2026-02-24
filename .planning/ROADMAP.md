@@ -47,7 +47,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Validation script + ADB wireless debugging docs (script creation, Dockerfile CLAUDE.md update)
+- [x] 02-01-PLAN.md — Validation script + ADB wireless debugging docs (script creation, Dockerfile CLAUDE.md update)
 - [ ] 02-02-PLAN.md — Docker image build, validation execution, and VNC human verification
 
 ### Phase 3: CI/CD Integration
