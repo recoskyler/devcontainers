@@ -65,3 +65,55 @@ RUN chown -R dev:dev /home/dev
 
 USER dev
 ENV HOME=/home/dev
+
+# ── Android SDK Components ───────────────────────────────────────────────────
+RUN yes | sdkmanager --licenses >/dev/null 2>&1 \
+    && sdkmanager \
+        "platform-tools" \
+        "platforms;android-35" \
+        "platforms;android-36" \
+        "build-tools;35.0.0" \
+        "build-tools;28.0.3" \
+        "emulator" \
+        "system-images;android-35;google_apis;x86_64"
+
+# ── Android Emulator AVD ─────────────────────────────────────────────────────
+RUN echo "no" | avdmanager create avd \
+        --force \
+        --name "flutter_pixel7" \
+        --package "system-images;android-35;google_apis;x86_64" \
+        --tag "google_apis" \
+        --abi "x86_64" \
+        --device "pixel_7" \
+    && printf 'hw.gpu.enabled=yes\nhw.gpu.mode=swiftshader_indirect\nhw.ramSize=2048\nhw.sdCard.size=4096M\n' \
+        >> $HOME/.android/avd/flutter_pixel7.avd/config.ini
+
+# ── FVM + Flutter ─────────────────────────────────────────────────────────────
+RUN curl -fsSL https://fvm.app/install.sh | bash
+
+ENV PATH=$HOME/fvm/bin:$HOME/fvm/default/bin:$PATH
+
+RUN fvm install stable \
+    && fvm global stable
+
+# Accept Flutter-specific Android licenses
+RUN yes | flutter doctor --android-licenses >/dev/null 2>&1 || true
+
+# Configure Android Studio path for flutter doctor detection
+RUN flutter config --android-studio-dir=/opt/android-studio 2>/dev/null || true
+
+# ── Rust (via rustup, installed as user) ──────────────────────────────────────
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+    && . "$HOME/.cargo/env" \
+    && rustup component add rustfmt clippy \
+    && cargo install cargo-watch cargo-edit \
+    && cargo install --locked cargo-nextest \
+    && rm -rf "$HOME/.cargo/registry" "$HOME/.cargo/git"
+
+RUN echo 'source "$HOME/.cargo/env"' >> /home/dev/.bashrc
+
+# ── CLAUDE.md tools append ────────────────────────────────────────────────────
+RUN printf '\n### Flutter & Android\n- `flutter`, `dart` via FVM (`fvm`)\n- Android SDK: cmdline-tools, platform-tools, build-tools 28.0.3 + 35.0.0, API 35 + 36\n- Android Emulator with SwiftShader (AVD: flutter_pixel7, Pixel 7, API 35)\n- Android Studio Panda 1 at /opt/android-studio\n- `chromium` (CHROME_EXECUTABLE set for `flutter run -d chrome`)\n\n### Rust\n- `rustc`, `cargo`, `rustup`, `rustfmt`, `clippy`\n- `cargo-watch`, `cargo-edit`, `cargo-nextest`\n' >> $HOME/.claude/CLAUDE.md
+
+# ── Build Verification ────────────────────────────────────────────────────────
+RUN flutter doctor -v
