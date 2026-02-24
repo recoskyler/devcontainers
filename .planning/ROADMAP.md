@@ -12,7 +12,7 @@ This roadmap delivers a new DevContainer Docker image variant for full-stack Flu
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Dockerfile Construction** - Build the Dockerfile with all tools (Flutter/FVM, Android SDK, emulator, Studio, Rust, Chromium) installed and `flutter doctor` passing
+- [x] **Phase 1: Dockerfile Construction** - Build the Dockerfile with all tools (Flutter/FVM, Android SDK, emulator, Studio, Rust, Chromium) installed and `flutter doctor` passing
 - [ ] **Phase 2: Runtime Validation** - Verify the built image works end-to-end: emulator boots via VNC, Studio connects to emulator, web target runs, inherited tools confirmed
 - [ ] **Phase 3: CI/CD Integration** - Add variant to GitHub Actions build and check workflows with isolated cache scope
 
@@ -31,8 +31,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — System-level installs (Java, cmdline-tools, Android Studio, Chromium, GUI libs)
-- [ ] 01-02-PLAN.md — User-level installs + validation (FVM/Flutter, SDK components, AVD, Rust, CLAUDE.md, flutter doctor)
+- [x] 01-01-PLAN.md — System-level installs (Java, cmdline-tools, Android Studio, Chromium, GUI libs)
+- [x] 01-02-PLAN.md — User-level installs + validation (FVM/Flutter, SDK components, AVD, Rust, CLAUDE.md, flutter doctor)
 
 ### Phase 2: Runtime Validation
 **Goal**: The built image works end-to-end at runtime -- emulator boots visibly via VNC, Android Studio connects to it, Flutter web target runs, and inherited backend tools are confirmed functional
@@ -69,6 +69,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Dockerfile Construction | 1/2 | In Progress | - |
+| 1. Dockerfile Construction | 2/2 | Complete | 2026-02-24 |
 | 2. Runtime Validation | 0/? | Not started | - |
 | 3. CI/CD Integration | 0/? | Not started | - |

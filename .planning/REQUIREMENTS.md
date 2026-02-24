@@ -9,21 +9,21 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Flutter & FVM
 
-- [ ] **FLUT-01**: FVM installed and Flutter stable SDK available via FVM
-- [ ] **FLUT-02**: `flutter doctor` passes with no critical errors at build time
+- [x] **FLUT-01**: FVM installed and Flutter stable SDK available via FVM
+- [x] **FLUT-02**: `flutter doctor` passes with no critical errors at build time
 
 ### Android SDK
 
 - [x] **SDK-01**: OpenJDK installed with JAVA_HOME configured
-- [ ] **SDK-02**: Android SDK cmdline-tools, platform-tools, and build-tools installed
-- [ ] **SDK-03**: Android platform (API 35) installed
-- [ ] **SDK-04**: Android SDK licenses accepted at build time
+- [x] **SDK-02**: Android SDK cmdline-tools, platform-tools, and build-tools installed
+- [x] **SDK-03**: Android platform (API 35) installed
+- [x] **SDK-04**: Android SDK licenses accepted at build time
 
 ### Android Emulator
 
-- [ ] **EMUL-01**: Android system image (x86_64, google_apis, API 35) installed
-- [ ] **EMUL-02**: Emulator runs with SwiftShader software rendering (no KVM required)
-- [ ] **EMUL-03**: Pre-created AVD with Pixel device profile for zero-config launch
+- [x] **EMUL-01**: Android system image (x86_64, google_apis, API 35) installed
+- [x] **EMUL-02**: Emulator runs with SwiftShader software rendering (no KVM required)
+- [x] **EMUL-03**: Pre-created AVD with Pixel device profile for zero-config launch
 
 ### Android Studio IDE
 
@@ -32,7 +32,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Backend Toolchain
 
-- [ ] **TOOL-01**: Rust toolchain installed via rustup (cargo, rustc, clippy, rustfmt)
+- [x] **TOOL-01**: Rust toolchain installed via rustup (cargo, rustc, clippy, rustfmt)
 - [ ] **TOOL-02**: NVM + Node.js LTS available (inherited from base)
 - [ ] **TOOL-03**: UV available for Python package management (inherited from base)
 
@@ -55,7 +55,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Conventions
 
 - [x] **CONV-01**: Dockerfile extends the VNC variant (or inlines VNC packages from base)
-- [ ] **CONV-02**: Tools section appended to `~/.claude/CLAUDE.md`
+- [x] **CONV-02**: Tools section appended to `~/.claude/CLAUDE.md`
 - [x] **CONV-03**: POSIX-compatible shell redirects used in Dockerfile RUN commands
 
 ## v2 Requirements
@@ -97,18 +97,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FLUT-01 | Phase 1 | Pending |
-| FLUT-02 | Phase 1 | Pending |
+| FLUT-01 | Phase 1 | Complete |
+| FLUT-02 | Phase 1 | Complete |
 | SDK-01 | Phase 1 | Complete |
-| SDK-02 | Phase 1 | Pending |
-| SDK-03 | Phase 1 | Pending |
-| SDK-04 | Phase 1 | Pending |
-| EMUL-01 | Phase 1 | Pending |
-| EMUL-02 | Phase 1 | Pending |
-| EMUL-03 | Phase 1 | Pending |
+| SDK-02 | Phase 1 | Complete |
+| SDK-03 | Phase 1 | Complete |
+| SDK-04 | Phase 1 | Complete |
+| EMUL-01 | Phase 1 | Complete |
+| EMUL-02 | Phase 1 | Complete |
+| EMUL-03 | Phase 1 | Complete |
 | IDE-01 | Phase 1 | Complete |
 | IDE-02 | Phase 2 | Pending |
-| TOOL-01 | Phase 1 | Pending |
+| TOOL-01 | Phase 1 | Complete |
 | TOOL-02 | Phase 2 | Pending |
 | TOOL-03 | Phase 2 | Pending |
 | DISP-01 | Phase 1 | Complete |
@@ -119,7 +119,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CICD-02 | Phase 3 | Pending |
 | CICD-03 | Phase 3 | Pending |
 | CONV-01 | Phase 1 | Complete |
-| CONV-02 | Phase 1 | Pending |
+| CONV-02 | Phase 1 | Complete |
 | CONV-03 | Phase 1 | Complete |
 
 **Coverage:**
