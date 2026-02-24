@@ -71,12 +71,20 @@ jobs:
         include:
           - name: trixie-bun-nvm-uv-claude
             scope: bun
+            build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
           - name: trixie-php-nvm-uv-claude
             scope: php
+            build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
           - name: trixie-rust-nvm-uv-claude
             scope: rust
+            build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
           - name: trixie-vnc-nvm-uv-claude
             scope: vnc
+            build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
+          - name: trixie-vnc-flutter-rust-nvm-uv-claude
+            scope: flutter
+            needs_vnc: true
+            build_contexts: trixie-vnc-nvm-uv-claude:latest=docker-image://localhost:5000/trixie-vnc-nvm-uv-claude:latest
 
     services:
       registry:
@@ -112,6 +120,17 @@ jobs:
           tags: localhost:5000/devcontainer-base:latest
           cache-from: type=gha,scope=base
 
+      - name: Rebuild VNC from cache and push to local registry
+        if: matrix.needs_vnc
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: trixie-vnc-nvm-uv-claude/Dockerfile
+          push: true
+          tags: localhost:5000/trixie-vnc-nvm-uv-claude:latest
+          build-contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
+          cache-from: type=gha,scope=vnc
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -130,6 +149,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
+          build-contexts: ${{ matrix.build_contexts }}
           cache-from: type=gha,scope=${{ matrix.scope }}
           cache-to: type=gha,mode=max,scope=${{ matrix.scope }}
