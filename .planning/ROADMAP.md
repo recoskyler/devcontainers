@@ -44,11 +44,12 @@ Plans:
   3. `flutter run -d chrome` successfully launches a Flutter app in Chromium inside the container
   4. NVM, Node.js LTS, UV, and Rust toolchain are all functional for the `dev` user (commands resolve, versions print)
   5. ADB wireless debugging instructions are documented for physical device connectivity
-**Plans**: 2 plans
+**Plans**: 3 plans
 
 Plans:
 - [x] 02-01-PLAN.md — Validation script + ADB wireless debugging docs (script creation, Dockerfile CLAUDE.md update)
 - [x] 02-02-PLAN.md — Docker image build, validation execution, and VNC human verification
+- [ ] 02-03-PLAN.md — Gap closure: kernel compatibility detection and emulator known-issues documentation
 
 ### Phase 3: CI/CD Integration
 **Goal**: The variant builds automatically in GitHub Actions alongside existing variants, with isolated caching that does not degrade other variants' build performance
@@ -71,5 +72,5 @@ Phases execute in numeric order: 1 -> 2 -> 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Dockerfile Construction | 2/2 | Complete | 2026-02-24 |
-| 2. Runtime Validation | 2/2 | Complete | 2026-02-24 |
+| 2. Runtime Validation | 2/3 | Gap closure | - |
 | 3. CI/CD Integration | 0/? | Not started | - |
