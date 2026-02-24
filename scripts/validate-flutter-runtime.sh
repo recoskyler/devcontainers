@@ -32,6 +32,13 @@ EMU_PID=""
 STUDIO_PID=""
 FLUTTER_WEB_PID=""
 
+# ── Environment setup (restore Docker ENV paths lost in login shells) ─────────
+export ANDROID_HOME="${ANDROID_HOME:-/home/dev/android-sdk}"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+export JAVA_HOME="${JAVA_HOME:-/usr/lib/jvm/java-21-openjdk-amd64}"
+export CHROME_EXECUTABLE="${CHROME_EXECUTABLE:-/usr/bin/chromium}"
+export PATH="$HOME/fvm/bin:$HOME/fvm/default/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
+
 # ── Section 1: Inherited Tools Check (TOOL-02, TOOL-03) ─────────────────────
 
 echo ""
@@ -142,46 +149,84 @@ echo "=== Section 3: Android Emulator Boot ==="
 
 adb start-server
 
+# Auto-detect KVM; use hardware acceleration when available, SwiftShader otherwise
+ACCEL_FLAGS=""
+if [ -e /dev/kvm ] && [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
+    echo "  KVM detected -- using hardware acceleration"
+    ACCEL_FLAGS="-gpu swiftshader_indirect"
+else
+    echo "  KVM not available -- using software emulation (TCG)"
+    ACCEL_FLAGS="-no-accel -gpu swiftshader_indirect"
+fi
+
+EMULATOR_OK=0
+
 emulator -avd flutter_pixel7 \
-    -gpu swiftshader_indirect \
+    $ACCEL_FLAGS \
     -no-audio \
     -no-boot-anim \
     -no-snapshot \
+    -no-metrics \
     -memory 2048 &
 EMU_PID=$!
 
-adb wait-for-device
-
-echo "Waiting for emulator boot (this takes 2-5 minutes with SwiftShader)..."
-TIMEOUT=600
-ELAPSED=0
-BOOT_OK=0
-while [ "$ELAPSED" -lt "$TIMEOUT" ]; do
-    BOOT_STATUS=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)
-    if [ "$BOOT_STATUS" = "1" ]; then
-        BOOT_OK=1
+# Wait for device with a 60s timeout (emulator may crash early)
+echo "Waiting for ADB to detect emulator device..."
+WAIT_ELAPSED=0
+while [ "$WAIT_ELAPSED" -lt 60 ]; do
+    if ! kill -0 "$EMU_PID" 2>/dev/null; then
+        echo "  Emulator process exited prematurely (PID: $EMU_PID)"
         break
     fi
-    sleep 5
-    ELAPSED=$((ELAPSED + 5))
-    echo "  ${ELAPSED}s elapsed..."
+    if adb devices 2>/dev/null | grep -q "emulator-5554"; then
+        break
+    fi
+    sleep 2
+    WAIT_ELAPSED=$((WAIT_ELAPSED + 2))
 done
 
-if [ "$BOOT_OK" -eq 1 ]; then
-    pass "Emulator booted after ${ELAPSED}s"
+# Check if emulator is still alive and detected
+if kill -0 "$EMU_PID" 2>/dev/null && adb devices 2>/dev/null | grep -q "emulator-5554"; then
+    echo "Waiting for emulator boot (this takes 2-5 minutes with SwiftShader)..."
+    TIMEOUT=600
+    ELAPSED=0
+    BOOT_OK=0
+    while [ "$ELAPSED" -lt "$TIMEOUT" ]; do
+        if ! kill -0 "$EMU_PID" 2>/dev/null; then
+            echo "  Emulator process died during boot"
+            break
+        fi
+        BOOT_STATUS=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)
+        if [ "$BOOT_STATUS" = "1" ]; then
+            BOOT_OK=1
+            break
+        fi
+        sleep 5
+        ELAPSED=$((ELAPSED + 5))
+        echo "  ${ELAPSED}s elapsed..."
+    done
+
+    if [ "$BOOT_OK" -eq 1 ]; then
+        pass "Emulator booted after ${ELAPSED}s"
+        EMULATOR_OK=1
+    else
+        fail "Emulator boot timed out or crashed after ${ELAPSED}s"
+    fi
 else
-    fail "Emulator boot timed out after ${TIMEOUT}s"
-    echo "ERROR: Emulator boot timed out after ${TIMEOUT}s"
-    exit 1
+    fail "Emulator failed to start (crashed or not detected by ADB)"
 fi
 
 # Verify emulator is listed by ADB
-ADB_DEVICES=$(adb devices 2>/dev/null)
-echo "$ADB_DEVICES"
-if echo "$ADB_DEVICES" | grep -q "emulator-5554.*device"; then
-    pass "emulator-5554 listed as 'device' in adb devices"
+if [ "$EMULATOR_OK" -eq 1 ]; then
+    ADB_DEVICES=$(adb devices 2>/dev/null)
+    echo "$ADB_DEVICES"
+    if echo "$ADB_DEVICES" | grep -q "emulator-5554.*device"; then
+        pass "emulator-5554 listed as 'device' in adb devices"
+    else
+        fail "emulator-5554 not found or not in 'device' state"
+    fi
 else
-    fail "emulator-5554 not found or not in 'device' state"
+    fail "emulator-5554 not checked (emulator did not start)"
 fi
 
 echo "--- Section 3 complete ---"
