@@ -155,6 +155,8 @@ ENV HOME=/home/dev
 # Claude Code CLI
 RUN curl -fsSL https://claude.ai/install.sh | bash
 
+ENV PATH=$HOME/.local/bin:$PATH
+
 # User-level CLAUDE.md for the devcontainer
 RUN mkdir -p $HOME/.claude
 COPY --chown=dev:dev base/devcontainer-claude.md $HOME/.claude/CLAUDE.md
@@ -162,8 +164,7 @@ COPY --chown=dev:dev base/devcontainer-claude.md $HOME/.claude/CLAUDE.md
 WORKDIR /workspace
 
 # UV
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
-    && echo 'export PATH=$HOME/.local/bin:$PATH' >> /home/dev/.bashrc
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Claude Plugins, MCP, Hooks
 ARG CONTEXT7_API_KEY=""

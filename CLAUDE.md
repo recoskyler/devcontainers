@@ -40,10 +40,11 @@ This is a project containing pre-configured Dockerfiles for building and hosting
 
 ## CI/CD notes
 
-- Both workflows use a two-job structure: `base` builds the base image with GHA cache, then `variants` runs 4 parallel matrix jobs
-- Variant jobs use a `registry:2` service container + `build-contexts` to remap `FROM devcontainer-base:latest` to the local registry — no Dockerfile changes needed
+- Both workflows use a two-job structure: `base` builds the base image with GHA cache, then `variants` runs 5 parallel matrix jobs
+- Variant jobs use a `registry:2` service container + `build-contexts` (via `matrix.build_contexts`) to remap FROM images to the local registry — no Dockerfile changes needed
+- The flutter variant has a three-tier chain (base -> VNC -> flutter) with a conditional VNC rebuild step (`if: matrix.needs_vnc`)
 - `build.yml` writes GHA cache (`cache-to`); `check.yml` only reads it (`cache-from`)
-- GHA cache scopes: `base`, `bun`, `php`, `rust`, `vnc`
+- GHA cache scopes: `base`, `bun`, `php`, `rust`, `vnc`, `flutter`
 
 ## Testing and validation
 

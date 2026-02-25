@@ -15,6 +15,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout
@@ -29,8 +30,40 @@ jobs:
           context: .
           file: base/Dockerfile
           push: false
+          load: true
           tags: devcontainer-base:latest
           cache-from: type=gha,scope=base
+
+      - name: Verify base tools
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}/scripts/verify-tools.sh:/tmp/verify-tools.sh:ro" \
+            devcontainer-base:latest \
+            bash /tmp/verify-tools.sh base 2>&1 | tee /tmp/verify-output.txt
+
+      - name: Comment PR with base verification
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if grep -q "ALL_CHECKS_PASSED" /tmp/verify-output.txt 2>/dev/null; then
+            ICON="✅"
+          else
+            ICON="❌"
+          fi
+          {
+            echo "### ${ICON} Tool Verification: base"
+            echo ""
+            echo "<details>"
+            echo "<summary>Click to expand verification output</summary>"
+            echo ""
+            echo '```'
+            cat /tmp/verify-output.txt
+            echo '```'
+            echo ""
+            echo "</details>"
+          } > /tmp/comment-body.md
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/comment-body.md
 
   # ── Phase 2: Build language images in parallel (no push) ───────────────────
   variants:
@@ -39,6 +72,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
+      pull-requests: write
 
     strategy:
       fail-fast: false
@@ -46,12 +80,20 @@ jobs:
         include:
           - name: trixie-bun-nvm-uv-claude
             scope: bun
+            build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
           - name: trixie-php-nvm-uv-claude
             scope: php
+            build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
           - name: trixie-rust-nvm-uv-claude
             scope: rust
+            build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
           - name: trixie-vnc-nvm-uv-claude
             scope: vnc
+            build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
+          - name: trixie-vnc-flutter-rust-nvm-uv-claude
+            scope: flutter
+            needs_vnc: true
+            build_contexts: trixie-vnc-nvm-uv-claude:latest=docker-image://localhost:5000/trixie-vnc-nvm-uv-claude:latest
 
     services:
       registry:
@@ -80,11 +122,56 @@ jobs:
           tags: localhost:5000/devcontainer-base:latest
           cache-from: type=gha,scope=base
 
+      - name: Rebuild VNC from cache and push to local registry
+        if: matrix.needs_vnc
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: trixie-vnc-nvm-uv-claude/Dockerfile
+          push: true
+          tags: localhost:5000/trixie-vnc-nvm-uv-claude:latest
+          build-contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
+          cache-from: type=gha,scope=vnc
+
       - name: Build ${{ matrix.name }}
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ${{ matrix.name }}/Dockerfile
           push: false
-          build-contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
+          load: true
+          tags: ${{ matrix.name }}:check
+          build-contexts: ${{ matrix.build_contexts }}
           cache-from: type=gha,scope=${{ matrix.scope }}
+
+      - name: Verify ${{ matrix.name }} tools
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}/scripts/verify-tools.sh:/tmp/verify-tools.sh:ro" \
+            ${{ matrix.name }}:check \
+            bash /tmp/verify-tools.sh ${{ matrix.name }} 2>&1 | tee /tmp/verify-output.txt
+
+      - name: Comment PR with ${{ matrix.name }} verification
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VARIANT="${{ matrix.name }}"
+          if grep -q "ALL_CHECKS_PASSED" /tmp/verify-output.txt 2>/dev/null; then
+            ICON="✅"
+          else
+            ICON="❌"
+          fi
+          {
+            echo "### ${ICON} Tool Verification: ${VARIANT}"
+            echo ""
+            echo "<details>"
+            echo "<summary>Click to expand verification output</summary>"
+            echo ""
+            echo '```'
+            cat /tmp/verify-output.txt
+            echo '```'
+            echo ""
+            echo "</details>"
+          } > /tmp/comment-body.md
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/comment-body.md
