@@ -5,30 +5,34 @@ CLAUDE="$HOME/.local/bin/claude"
 
 # --- Claude Plugins ---
 
-$CLAUDE plugin marketplace add affaan-m/everything-claude-code
-$CLAUDE plugin install everything-claude-code@everything-claude-code
+if [ -x "$CLAUDE" ]; then
+    $CLAUDE plugin marketplace add affaan-m/everything-claude-code
+    $CLAUDE plugin install everything-claude-code@everything-claude-code
 
-$CLAUDE plugin marketplace add obra/superpowers
-$CLAUDE plugin install superpowers@superpowers-dev
+    $CLAUDE plugin marketplace add obra/superpowers
+    $CLAUDE plugin install superpowers@superpowers-dev
 
-$CLAUDE plugin marketplace add anthropics/claude-plugins-official
-$CLAUDE plugin install code-review@claude-plugins-official
-$CLAUDE plugin install commit-commands@claude-plugins-official
-$CLAUDE plugin install explanatory-output-style@claude-plugins-official
-$CLAUDE plugin install hookify@claude-plugins-official
-$CLAUDE plugin install feature-dev@claude-plugins-official
-$CLAUDE plugin install frontend-design@claude-plugins-official
-$CLAUDE plugin install learning-output-style@claude-plugins-official
-$CLAUDE plugin install ralph-loop@claude-plugins-official
-$CLAUDE plugin install pr-review-toolkit@claude-plugins-official
-$CLAUDE plugin install security-guidance@claude-plugins-official
-$CLAUDE plugin install claude-md-management@claude-plugins-official
-$CLAUDE plugin install claude-code-setup@claude-plugins-official
-$CLAUDE plugin install playground@claude-plugins-official
-$CLAUDE plugin install typescript-lsp@claude-plugins-official
-$CLAUDE plugin install pyright-lsp@claude-plugins-official
-$CLAUDE plugin install php-lsp@claude-plugins-official
-$CLAUDE plugin install laravel-boost@claude-plugins-official
+    $CLAUDE plugin marketplace add anthropics/claude-plugins-official
+    $CLAUDE plugin install code-review@claude-plugins-official
+    $CLAUDE plugin install commit-commands@claude-plugins-official
+    $CLAUDE plugin install explanatory-output-style@claude-plugins-official
+    $CLAUDE plugin install hookify@claude-plugins-official
+    $CLAUDE plugin install feature-dev@claude-plugins-official
+    $CLAUDE plugin install frontend-design@claude-plugins-official
+    $CLAUDE plugin install learning-output-style@claude-plugins-official
+    $CLAUDE plugin install ralph-loop@claude-plugins-official
+    $CLAUDE plugin install pr-review-toolkit@claude-plugins-official
+    $CLAUDE plugin install security-guidance@claude-plugins-official
+    $CLAUDE plugin install claude-md-management@claude-plugins-official
+    $CLAUDE plugin install claude-code-setup@claude-plugins-official
+    $CLAUDE plugin install playground@claude-plugins-official
+    $CLAUDE plugin install typescript-lsp@claude-plugins-official
+    $CLAUDE plugin install pyright-lsp@claude-plugins-official
+    $CLAUDE plugin install php-lsp@claude-plugins-official
+    $CLAUDE plugin install laravel-boost@claude-plugins-official
+else
+    echo "WARNING: Claude CLI not found at $CLAUDE — skipping plugin setup"
+fi
 
 # --- Agent Browser ---
 
@@ -59,5 +63,9 @@ echo '{ "type": "commonjs" }' > /workspace/.claude/get-shit-done/bin/package.jso
 
 # --- MCP Servers ---
 
-$CLAUDE mcp add --transport stdio -s user serena -- \
-    uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context=claude-code --project-from-cwd
+if [ -x "$CLAUDE" ]; then
+    $CLAUDE mcp add --transport stdio -s user serena -- \
+        uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context=claude-code --project-from-cwd
+else
+    echo "WARNING: Claude CLI not found — skipping MCP server setup"
+fi
