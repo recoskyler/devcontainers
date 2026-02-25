@@ -15,6 +15,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout
@@ -29,8 +30,40 @@ jobs:
           context: .
           file: base/Dockerfile
           push: false
+          load: true
           tags: devcontainer-base:latest
           cache-from: type=gha,scope=base
+
+      - name: Verify base tools
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}/scripts/verify-tools.sh:/tmp/verify-tools.sh:ro" \
+            devcontainer-base:latest \
+            bash /tmp/verify-tools.sh base 2>&1 | tee /tmp/verify-output.txt
+
+      - name: Comment PR with base verification
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if grep -q "ALL_CHECKS_PASSED" /tmp/verify-output.txt 2>/dev/null; then
+            ICON="✅"
+          else
+            ICON="❌"
+          fi
+          {
+            echo "### ${ICON} Tool Verification: base"
+            echo ""
+            echo "<details>"
+            echo "<summary>Click to expand verification output</summary>"
+            echo ""
+            echo '```'
+            cat /tmp/verify-output.txt
+            echo '```'
+            echo ""
+            echo "</details>"
+          } > /tmp/comment-body.md
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/comment-body.md
 
   # ── Phase 2: Build language images in parallel (no push) ───────────────────
   variants:
@@ -39,6 +72,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
+      pull-requests: write
 
     strategy:
       fail-fast: false
@@ -105,5 +139,39 @@ jobs:
           context: .
           file: ${{ matrix.name }}/Dockerfile
           push: false
+          load: true
+          tags: ${{ matrix.name }}:check
           build-contexts: ${{ matrix.build_contexts }}
           cache-from: type=gha,scope=${{ matrix.scope }}
+
+      - name: Verify ${{ matrix.name }} tools
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}/scripts/verify-tools.sh:/tmp/verify-tools.sh:ro" \
+            ${{ matrix.name }}:check \
+            bash /tmp/verify-tools.sh ${{ matrix.name }} 2>&1 | tee /tmp/verify-output.txt
+
+      - name: Comment PR with ${{ matrix.name }} verification
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VARIANT="${{ matrix.name }}"
+          if grep -q "ALL_CHECKS_PASSED" /tmp/verify-output.txt 2>/dev/null; then
+            ICON="✅"
+          else
+            ICON="❌"
+          fi
+          {
+            echo "### ${ICON} Tool Verification: ${VARIANT}"
+            echo ""
+            echo "<details>"
+            echo "<summary>Click to expand verification output</summary>"
+            echo ""
+            echo '```'
+            cat /tmp/verify-output.txt
+            echo '```'
+            echo ""
+            echo "</details>"
+          } > /tmp/comment-body.md
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/comment-body.md
