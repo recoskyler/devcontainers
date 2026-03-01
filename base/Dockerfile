@@ -189,6 +189,8 @@ RUN bash /tmp/setup-claude.sh && rm -f /tmp/setup-claude.sh
 
 RUN echo 'source $HOME/.local/bin/init-claude-mcp.sh 2>/dev/null' >> /home/dev/.bashrc
 
+RUN tldr --update
+
 # ── Final root section ──────────────────────────────────────────────────────
 
 USER root
