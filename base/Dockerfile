@@ -251,4 +251,8 @@ RUN agent-browser install --with-deps
 
 RUN chown -R dev:dev /home/dev
 
+COPY scripts/docker-sock-fix.sh /usr/local/bin/docker-sock-fix.sh
+RUN chmod +x /usr/local/bin/docker-sock-fix.sh
+ENTRYPOINT ["docker-sock-fix.sh"]
+
 USER dev
