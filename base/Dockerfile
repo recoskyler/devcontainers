@@ -8,6 +8,10 @@ ENV LC_ALL=C.UTF-8
 
 # ── System packages (apt-get) ────────────────────────────────────────────────
 
+RUN apt-get update && apt-get install -y --no-install-recommends software-properties-common
+
+RUN add-apt-repository -y ppa:git-core/ppa
+
 RUN apt-get update \
     && apt-get -y install --no-install-recommends \
     apt-transport-https \
@@ -41,14 +45,48 @@ RUN apt-get update \
     python3-pip \
     redis-tools \
     ripgrep \
-    tealdeer \
     sudo \
     tmux \
     tree \
     unzip \
     vim \
     wget \
-    xclip
+    xclip \
+    bzip2 \
+    file \
+    fonts-dejavu-core \
+    g++ \
+    libz-dev \
+    locales \
+    make \
+    netbase \
+    patch \
+    uuid-runtime \
+    tzdata
+
+RUN localedef -i en_US -f UTF-8 en_US.UTF-8
+
+RUN useradd -m -s /bin/bash linuxbrew
+
+RUN echo 'linuxbrew ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers
+
+ENV PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH
+
+WORKDIR /home/linuxbrew
+
+RUN cd /home/linuxbrew/.linuxbrew \
+  && mkdir -p bin etc include lib opt sbin share var/homebrew/linked Cellar \
+  && ln -s ../Homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/ \
+  && git -C /home/linuxbrew/.linuxbrew/Homebrew remote set-url origin https://github.com/Homebrew/brew \
+  && HOMEBREW_NO_ANALYTICS=1 HOMEBREW_NO_AUTO_UPDATE=1 brew tap homebrew/core \
+  && brew install-bundler-gems \
+  && brew install tealdeer \
+  && brew cleanup \
+  && rm -rf ~/.cache \
+  && chown -R linuxbrew: /home/linuxbrew/.linuxbrew \
+  && chmod -R g+w,o-w /home/linuxbrew/.linuxbrew
+
+WORKDIR /workspace
 
 # ── CLI tools (apt repos) ───────────────────────────────────────────────────
 
