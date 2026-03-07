@@ -176,7 +176,8 @@ RUN apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN chown -R dev:dev /home/dev
+RUN chown -R dev:dev /home/dev \
+    && mkdir -p /workspace && chown dev:dev /workspace
 
 # ── User-space tools (as USER dev) ──────────────────────────────────────────
 
