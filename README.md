@@ -50,6 +50,7 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
 
             volumes:
                 - ..:/workspace:cached
+                - home:/home
 
             # Overrides default command so things don't
             # shut down after the process ends
@@ -71,6 +72,9 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
 
             ipc: host
             init: true
+
+    volumes:
+        home:
 
     networks:
         default:
