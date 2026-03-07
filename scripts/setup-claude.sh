@@ -36,9 +36,9 @@ fi
 
 # --- Agent Browser ---
 
-mkdir -p /workspace/.claude/skills/agent-browser
+mkdir -p /home/dev/.claude/skills/agent-browser
 
-curl -o /workspace/.claude/skills/agent-browser/SKILL.md https://raw.githubusercontent.com/vercel-labs/agent-browser/main/skills/agent-browser/SKILL.md
+curl -o /home/dev/.claude/skills/agent-browser/SKILL.md https://raw.githubusercontent.com/vercel-labs/agent-browser/main/skills/agent-browser/SKILL.md
 
 # --- Hookify Fix ---
 
@@ -54,8 +54,6 @@ cp -r /tmp/everything-claude-code/rules/typescript/* "$HOME/.claude/rules/"
 rm -rf /tmp/everything-claude-code
 
 # --- GSD ---
-
-cd /workspace
 
 npx -y get-shit-done-cc --claude --global
 

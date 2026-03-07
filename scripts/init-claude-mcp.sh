@@ -61,10 +61,11 @@ if [ -n "$NTFY_URL" ] && [ -n "$NTFY_TOKEN" ]; then
     fi
 fi
 
-# --- Serena project-scope config ---
-# Exclude Serena memory tools via project config (not user-scope)
-SERENA_PROJECT="/workspace/.serena/project.yml"
-if [ -f "$SERENA_PROJECT" ] && grep -q '^excluded_tools: \[\]' "$SERENA_PROJECT"; then
+# --- Serena user-scope config ---
+# Exclude Serena memory tools via user config
+SERENA_USER="$HOME/.serena/user.yml"
+mkdir -p "$HOME/.serena"
+if [ ! -f "$SERENA_USER" ] || grep -q '^excluded_tools: \[\]' "$SERENA_USER"; then
     if [ -n "$AUTOMEM_ENDPOINT" ] && [ -n "$AUTOMEM_API_KEY" ]; then
         # Automem replaces all Serena memory/onboarding tools
         TOOLS=(write_memory read_memory edit_memory delete_memory list_memories check_onboarding_performed onboarding)
@@ -79,8 +80,12 @@ if [ -f "$SERENA_PROJECT" ] && grep -q '^excluded_tools: \[\]' "$SERENA_PROJECT"
 - ${t}"
     done
 
-    awk -v new="$YAML" '/^excluded_tools: \[\]/ { print new; next } 1' "$SERENA_PROJECT" > "$SERENA_PROJECT.tmp"
-    mv "$SERENA_PROJECT.tmp" "$SERENA_PROJECT"
+    if [ -f "$SERENA_USER" ]; then
+        awk -v new="$YAML" '/^excluded_tools: \[\]/ { print new; next } 1' "$SERENA_USER" > "$SERENA_USER.tmp"
+        mv "$SERENA_USER.tmp" "$SERENA_USER"
+    else
+        printf '%s\n' "$YAML" > "$SERENA_USER"
+    fi
 fi
 
 touch /tmp/.claude-mcp-init
