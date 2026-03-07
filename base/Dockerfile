@@ -62,7 +62,7 @@ RUN apt-get update \
 
 RUN localedef -i en_US -f UTF-8 en_US.UTF-8
 
-RUN useradd -m -s /bin/bash -G sudo linuxbrew \
+RUN useradd -m -s /bin/bash -u 1500 -G sudo linuxbrew \
     && echo 'linuxbrew ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers
 
 USER linuxbrew
@@ -127,7 +127,9 @@ RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | gpg --d
 
 # ── User setup ───────────────────────────────────────────────────────────────
 
-RUN id dev >/dev/null 2>&1 || useradd -m -s /bin/bash -u 1000 -G linuxbrew dev
+RUN id dev >/dev/null 2>&1 \
+    && usermod -aG linuxbrew dev \
+    || useradd -m -s /bin/bash -u 1000 -G linuxbrew dev
 
 RUN chsh -s $(which bash) dev \
     && echo 'export PS1="\e[01;32m\u\e[m:\e[01;34m\w\e[m\$ "' >> /home/dev/.bashrc
