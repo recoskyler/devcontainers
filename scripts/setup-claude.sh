@@ -59,8 +59,6 @@ cd /workspace
 
 npx -y get-shit-done-cc --claude --global
 
-echo '{ "type": "commonjs" }' > /workspace/.claude/get-shit-done/bin/package.json
-
 # --- MCP Servers ---
 
 if [ -x "$CLAUDE" ]; then
