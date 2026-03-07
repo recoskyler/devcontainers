@@ -162,7 +162,7 @@ All images extend a shared base (`base/Dockerfile` — `debian:trixie`) and run 
 - **MCP servers**: Serena, Context7, Automem
 - **GSD** (Get Shit Done for Claude Code)
 - **Agent Browser** + Chrome
-- **Docker** CLI + Compose plugin (`docker`, `docker compose`) — mount the host socket to use
+- **Docker** CLI + Compose plugin (`docker`, `docker compose`) — mount the host socket to use; works without `sudo` (the entrypoint automatically matches the socket's GID)
 - **CLI tools**: git, curl, wget, vim, nano, jq, tmux, xclip, openssh-client, gnupg, cmake, less, unzip, gh, pnpm, tsx
 - **Search & file tools**: ripgrep, fd-find, fzf, bat, tree
 - **PDF tools**: poppler-utils (pdftotext, pdfinfo, etc.)
