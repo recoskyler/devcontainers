@@ -8,10 +8,6 @@ ENV LC_ALL=C.UTF-8
 
 # ── System packages (apt-get) ────────────────────────────────────────────────
 
-RUN apt-get update && apt-get install -y --no-install-recommends software-properties-common
-
-RUN add-apt-repository -y ppa:git-core/ppa
-
 RUN apt-get update \
     && apt-get -y install --no-install-recommends \
     apt-transport-https \
@@ -66,25 +62,20 @@ RUN apt-get update \
 
 RUN localedef -i en_US -f UTF-8 en_US.UTF-8
 
-RUN useradd -m -s /bin/bash linuxbrew
+RUN useradd -m -s /bin/bash -G sudo linuxbrew \
+    && echo 'linuxbrew ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers
 
-RUN echo 'linuxbrew ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers
+USER linuxbrew
+
+RUN NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 ENV PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH
 
-WORKDIR /home/linuxbrew
+RUN HOMEBREW_NO_ANALYTICS=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install tealdeer \
+    && brew cleanup \
+    && rm -rf /home/linuxbrew/.cache
 
-RUN cd /home/linuxbrew/.linuxbrew \
-  && mkdir -p bin etc include lib opt sbin share var/homebrew/linked Cellar \
-  && ln -s ../Homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/ \
-  && git -C /home/linuxbrew/.linuxbrew/Homebrew remote set-url origin https://github.com/Homebrew/brew \
-  && HOMEBREW_NO_ANALYTICS=1 HOMEBREW_NO_AUTO_UPDATE=1 brew tap homebrew/core \
-  && brew install-bundler-gems \
-  && brew install tealdeer \
-  && brew cleanup \
-  && rm -rf ~/.cache \
-  && chown -R linuxbrew: /home/linuxbrew/.linuxbrew \
-  && chmod -R g+w,o-w /home/linuxbrew/.linuxbrew
+USER root
 
 WORKDIR /workspace
 
@@ -136,7 +127,7 @@ RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | gpg --d
 
 # ── User setup ───────────────────────────────────────────────────────────────
 
-RUN id dev >/dev/null 2>&1 || useradd -m -s /bin/bash -u 1000 dev
+RUN id dev >/dev/null 2>&1 || useradd -m -s /bin/bash -u 1000 -G linuxbrew dev
 
 RUN chsh -s $(which bash) dev \
     && echo 'export PS1="\e[01;32m\u\e[m:\e[01;34m\w\e[m\$ "' >> /home/dev/.bashrc
