@@ -77,6 +77,8 @@ RUN HOMEBREW_NO_ANALYTICS=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install tealdeer \
 
 USER root
 
+RUN chmod -R g+rX /home/linuxbrew
+
 WORKDIR /workspace
 
 # ── CLI tools (apt repos) ───────────────────────────────────────────────────
@@ -84,6 +86,11 @@ WORKDIR /workspace
 # Stripe CLI
 RUN curl -s https://packages.stripe.dev/api/security/keypair/stripe-cli-gpg/public | gpg --dearmor | tee /usr/share/keyrings/stripe.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/stripe.gpg] https://packages.stripe.dev/stripe-cli-debian-local stable main" | tee -a /etc/apt/sources.list.d/stripe.list
+
+# Docker CLI
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian trixie stable" \
+       | tee /etc/apt/sources.list.d/docker.list
 
 # GH CLI + Stripe CLI install
 RUN mkdir -p -m 755 /etc/apt/keyrings \
@@ -94,7 +101,7 @@ RUN mkdir -p -m 755 /etc/apt/keyrings \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
        | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
     && apt-get update \
-    && apt-get -y install --no-install-recommends gh stripe
+    && apt-get -y install --no-install-recommends gh stripe docker-ce-cli docker-compose-plugin
 
 # ── CLI tools (releases) ────────────────────────────────────────────────────
 
@@ -127,9 +134,11 @@ RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | gpg --d
 
 # ── User setup ───────────────────────────────────────────────────────────────
 
+RUN groupadd -f docker
+
 RUN id dev >/dev/null 2>&1 \
-    && usermod -aG linuxbrew dev \
-    || useradd -m -s /bin/bash -u 1000 -G linuxbrew dev
+    && usermod -aG linuxbrew,docker dev \
+    || useradd -m -s /bin/bash -u 1000 -G linuxbrew,docker dev
 
 RUN chsh -s $(which bash) dev \
     && echo 'export PS1="\e[01;32m\u\e[m:\e[01;34m\w\e[m\$ "' >> /home/dev/.bashrc
