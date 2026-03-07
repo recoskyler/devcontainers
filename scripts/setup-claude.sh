@@ -72,10 +72,10 @@ fi
 
 # --- Enable Remote Control for all sessions ---
 
-CLAUDE_JSON="$HOME/.claude.json"
-if [ -f "$CLAUDE_JSON" ] && command -v jq >/dev/null 2>&1; then
-    jq '. + {"remoteControlAtStartup": true}' "$CLAUDE_JSON" > "$CLAUDE_JSON.tmp" \
-        && mv "$CLAUDE_JSON.tmp" "$CLAUDE_JSON"
-else
-    printf '{"remoteControlAtStartup":true}\n' > "$CLAUDE_JSON"
-fi
+# CLAUDE_JSON="$HOME/.claude.json"
+# if [ -f "$CLAUDE_JSON" ] && command -v jq >/dev/null 2>&1; then
+#     jq '. + {"remoteControlAtStartup": true}' "$CLAUDE_JSON" > "$CLAUDE_JSON.tmp" \
+#         && mv "$CLAUDE_JSON.tmp" "$CLAUDE_JSON"
+# else
+#     printf '{"remoteControlAtStartup":true}\n' > "$CLAUDE_JSON"
+# fi
