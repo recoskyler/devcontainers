@@ -36,9 +36,9 @@ fi
 
 # --- Agent Browser ---
 
-mkdir -p /workspace/.claude/skills/agent-browser
+mkdir -p /home/dev/.claude/skills/agent-browser
 
-curl -o /workspace/.claude/skills/agent-browser/SKILL.md https://raw.githubusercontent.com/vercel-labs/agent-browser/main/skills/agent-browser/SKILL.md
+curl -o /home/dev/.claude/skills/agent-browser/SKILL.md https://raw.githubusercontent.com/vercel-labs/agent-browser/main/skills/agent-browser/SKILL.md
 
 # --- Hookify Fix ---
 
@@ -55,11 +55,7 @@ rm -rf /tmp/everything-claude-code
 
 # --- GSD ---
 
-cd /workspace
-
-npx -y get-shit-done-cc --claude --local
-
-echo '{ "type": "commonjs" }' > /workspace/.claude/get-shit-done/bin/package.json
+npx -y get-shit-done-cc --claude --global
 
 # --- MCP Servers ---
 
@@ -69,3 +65,13 @@ if [ -x "$CLAUDE" ]; then
 else
     echo "WARNING: Claude CLI not found — skipping MCP server setup"
 fi
+
+# --- Enable Remote Control for all sessions ---
+
+# CLAUDE_JSON="$HOME/.claude.json"
+# if [ -f "$CLAUDE_JSON" ] && command -v jq >/dev/null 2>&1; then
+#     jq '. + {"remoteControlAtStartup": true}' "$CLAUDE_JSON" > "$CLAUDE_JSON.tmp" \
+#         && mv "$CLAUDE_JSON.tmp" "$CLAUDE_JSON"
+# else
+#     printf '{"remoteControlAtStartup":true}\n' > "$CLAUDE_JSON"
+# fi

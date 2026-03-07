@@ -50,6 +50,8 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
 
             volumes:
                 - ..:/workspace:cached
+                - home:/home
+                - /var/run/docker.sock:/var/run/docker.sock
 
             # Overrides default command so things don't
             # shut down after the process ends
@@ -72,6 +74,9 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
             ipc: host
             init: true
 
+    volumes:
+        home:
+
     networks:
         default:
             driver: bridge
@@ -88,6 +93,10 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
         "dockerComposeFile": "compose.yml",
         "service": "app",
         "workspaceFolder": "/workspace",
+
+        "mounts": [
+            "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+        ],
 
         "forwardPorts": [3000, 4983, 5173, 5174],
 
@@ -136,10 +145,12 @@ All images extend a shared base (`base/Dockerfile` — `debian:trixie`) and run 
 
 | Image | Extra stack |
 |-------|-------------|
+| `ghcr.io/recoskyler/devcontainer-base:latest` | — (base only) |
 | `ghcr.io/recoskyler/trixie-bun-nvm-uv-claude:latest` | Bun |
 | `ghcr.io/recoskyler/trixie-php-nvm-uv-claude:latest` | PHP 8.4, Composer |
 | `ghcr.io/recoskyler/trixie-rust-nvm-uv-claude:latest` | Rust toolchain |
 | `ghcr.io/recoskyler/trixie-vnc-nvm-uv-claude:latest` | x11vnc, Xvfb |
+| `ghcr.io/recoskyler/trixie-vnc-flutter-rust-nvm-uv-claude:latest` | Flutter, Rust, Android SDK, VNC |
 
 ## What's Included
 
@@ -151,8 +162,10 @@ All images extend a shared base (`base/Dockerfile` — `debian:trixie`) and run 
 - **MCP servers**: Serena, Context7, Automem
 - **GSD** (Get Shit Done for Claude Code)
 - **Agent Browser** + Chrome
+- **Docker** CLI + Compose plugin (`docker`, `docker compose`) — mount the host socket to use
 - **CLI tools**: git, curl, wget, vim, nano, jq, tmux, xclip, openssh-client, gnupg, cmake, less, unzip, gh, pnpm, tsx
 - **Search & file tools**: ripgrep, fd-find, fzf, bat, tree
+- **PDF tools**: poppler-utils (pdftotext, pdfinfo, etc.)
 - **Networking & HTTP**: httpie, netcat
 - **Cloud & infra**: AWS CLI v2, Terraform, kubectl, Stripe CLI
 - **Utilities**: duf, git-delta, tldr
@@ -181,6 +194,18 @@ All images extend a shared base (`base/Dockerfile` — `debian:trixie`) and run 
 
 - **x11vnc**, **Xvfb**, xdg-utils
 
+### Flutter (`trixie-vnc-flutter-rust-nvm-uv-claude`)
+
+Extends the VNC image with Flutter, Rust, and Android tooling.
+
+- **Flutter** via FVM (`flutter`, `dart`, `fvm`)
+- **Rust** toolchain (rustup, rustfmt, clippy, cargo-watch, cargo-edit, cargo-nextest)
+- **Android SDK**: cmdline-tools, platform-tools, build-tools (28.0.3 + 35.0.0), API 35 + 36
+- **Android Emulator** with SwiftShader (AVD: `flutter_pixel7`, Pixel 7, API 35)
+- **Android Studio** Panda 1 (at `/opt/android-studio`)
+- **Chromium** (`CHROME_EXECUTABLE` set for `flutter run -d chrome`)
+- **OpenJDK 21** (headless)
+
 ## Build Arguments
 
 | Argument | Default | Description |
@@ -205,10 +230,10 @@ Secret-dependent MCP servers and ntfy hooks are configured at **runtime** (first
 
 Two GitHub Actions workflows build and verify images:
 
-- **`build.yml`** — Runs on push to `latest` or version tags. Builds the base image with GHA cache, then builds and pushes all 4 variants to GHCR in parallel (matrix strategy).
-- **`check.yml`** — Runs on PRs to `latest`. Same structure but read-only cache (no `cache-to`) and no push to GHCR.
+- **`build.yml`** — Runs on push to `latest` or version tags. Builds the base image with GHA cache, then builds and pushes all 5 variants to GHCR in parallel (matrix strategy).
+- **`check.yml`** — Runs on PRs to `latest`. Same structure but read-only cache (no `cache-to`) and no push to GHCR. Each variant runs tool verification and posts results as PR comments.
 
-Both workflows use a local `registry:2` service container and `build-contexts` to remap `FROM devcontainer-base:latest` at build time, requiring zero Dockerfile changes.
+Both workflows use a local `registry:2` service container and `build-contexts` to remap `FROM` images at build time, requiring zero Dockerfile changes. The flutter variant has a three-tier chain (base → VNC → flutter) with a conditional VNC rebuild step.
 
 Images are published to GHCR at `ghcr.io/<owner>/<image-name>`.
 
@@ -226,14 +251,22 @@ Images are published to GHCR at `ghcr.io/<owner>/<image-name>`.
 Build locally:
 
 ```bash
-# Build base first
-docker build -t devcontainer-base:latest -f base/Dockerfile .
+# Build base first (NODE_VERSION is a base ARG)
+docker build -t devcontainer-base:latest \
+  --build-arg NODE_VERSION=24.12.0 \
+  -f base/Dockerfile .
 
 # Then build a variant
 docker build \
   -f trixie-bun-nvm-uv-claude/Dockerfile \
-  --build-arg NODE_VERSION=24.12.0 \
   -t trixie-bun-nvm-uv-claude .
+
+# Flutter requires VNC as an intermediate layer
+docker build -t trixie-vnc-nvm-uv-claude:latest \
+  -f trixie-vnc-nvm-uv-claude/Dockerfile .
+docker build \
+  -f trixie-vnc-flutter-rust-nvm-uv-claude/Dockerfile \
+  -t trixie-vnc-flutter-rust-nvm-uv-claude .
 ```
 
 Then run with your API keys as environment variables:
@@ -250,7 +283,7 @@ docker run -it \
 
 ## Agent Browser
 
-The skill is already installed. You may want to add the following to `AGENTS.md`/`CLAUDE.md`:
+The skill is already installed, and the following section is already included in all images `~/.claude/CLAUDE.md`.
 
 ```md
 ## Browser Automation

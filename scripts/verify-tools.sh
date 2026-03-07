@@ -129,7 +129,8 @@ verify_base() {
     done
 
     # Claude ecosystem
-    check_file "GSD directory" "/workspace/.claude/get-shit-done"
+    check_file "GSD directory" "/home/dev/.claude/get-shit-done"
+
     for script in ntfy-hook.sh suggest-context7-hook.sh init-claude-mcp.sh; do
         check_file "$script" "$HOME/.local/bin/$script"
     done

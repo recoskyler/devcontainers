@@ -41,20 +41,56 @@ RUN apt-get update \
     python3-pip \
     redis-tools \
     ripgrep \
-    tealdeer \
     sudo \
     tmux \
     tree \
     unzip \
     vim \
     wget \
-    xclip
+    xclip \
+    bzip2 \
+    file \
+    fonts-dejavu-core \
+    g++ \
+    libz-dev \
+    locales \
+    make \
+    netbase \
+    patch \
+    uuid-runtime \
+    tzdata
+
+RUN localedef -i en_US -f UTF-8 en_US.UTF-8
+
+RUN useradd -m -s /bin/bash -u 1500 -G sudo linuxbrew \
+    && echo 'linuxbrew ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers
+
+USER linuxbrew
+
+RUN NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+ENV PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH
+
+RUN HOMEBREW_NO_ANALYTICS=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install tealdeer \
+    && brew cleanup \
+    && rm -rf /home/linuxbrew/.cache
+
+USER root
+
+RUN chmod -R g+rX /home/linuxbrew
+
+WORKDIR /workspace
 
 # ── CLI tools (apt repos) ───────────────────────────────────────────────────
 
 # Stripe CLI
 RUN curl -s https://packages.stripe.dev/api/security/keypair/stripe-cli-gpg/public | gpg --dearmor | tee /usr/share/keyrings/stripe.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/stripe.gpg] https://packages.stripe.dev/stripe-cli-debian-local stable main" | tee -a /etc/apt/sources.list.d/stripe.list
+
+# Docker CLI
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian trixie stable" \
+       | tee /etc/apt/sources.list.d/docker.list
 
 # GH CLI + Stripe CLI install
 RUN mkdir -p -m 755 /etc/apt/keyrings \
@@ -65,7 +101,7 @@ RUN mkdir -p -m 755 /etc/apt/keyrings \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
        | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
     && apt-get update \
-    && apt-get -y install --no-install-recommends gh stripe
+    && apt-get -y install --no-install-recommends gh stripe docker-ce-cli docker-compose-plugin
 
 # ── CLI tools (releases) ────────────────────────────────────────────────────
 
@@ -98,7 +134,11 @@ RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | gpg --d
 
 # ── User setup ───────────────────────────────────────────────────────────────
 
-RUN id dev >/dev/null 2>&1 || useradd -m -s /bin/bash -u 1000 dev
+RUN groupadd -f docker
+
+RUN id dev >/dev/null 2>&1 \
+    && usermod -aG linuxbrew,docker dev \
+    || useradd -m -s /bin/bash -u 1000 -G linuxbrew,docker dev
 
 RUN chsh -s $(which bash) dev \
     && echo 'export PS1="\e[01;32m\u\e[m:\e[01;34m\w\e[m\$ "' >> /home/dev/.bashrc
@@ -145,7 +185,8 @@ RUN apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN chown -R dev:dev /home/dev
+RUN chown -R dev:dev /home/dev \
+    && mkdir -p /workspace && chown dev:dev /workspace
 
 # ── User-space tools (as USER dev) ──────────────────────────────────────────
 
@@ -188,6 +229,8 @@ COPY --chown=dev:dev scripts/setup-claude.sh /tmp/setup-claude.sh
 RUN bash /tmp/setup-claude.sh && rm -f /tmp/setup-claude.sh
 
 RUN echo 'source $HOME/.local/bin/init-claude-mcp.sh 2>/dev/null' >> /home/dev/.bashrc
+
+RUN tldr --update
 
 # ── Final root section ──────────────────────────────────────────────────────
 
