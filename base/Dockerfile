@@ -201,6 +201,7 @@ ENV PATH=$HOME/.local/bin:$PATH
 # User-level CLAUDE.md for the devcontainer
 RUN mkdir -p $HOME/.claude
 COPY --chown=dev:dev base/devcontainer-claude.md $HOME/.claude/CLAUDE.md
+COPY --chown=dev:dev base/tmux.conf $HOME/.tmux.conf
 
 WORKDIR /workspace
 
