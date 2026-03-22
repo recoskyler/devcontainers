@@ -57,6 +57,12 @@ rm -rf /tmp/everything-claude-code
 
 npx -y get-shit-done-cc --claude --global
 
+# --- gstack ---
+
+git clone https://github.com/garrytan/gstack.git "$HOME/.claude/skills/gstack"
+cd "$HOME/.claude/skills/gstack" && ./setup
+cd /workspace
+
 # --- MCP Servers ---
 
 if [ -x "$CLAUDE" ]; then
