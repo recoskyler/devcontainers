@@ -7,6 +7,7 @@ This is a DevContainer running Debian Trixie. You are the `dev` user with passwo
 ### Languages & Runtimes
 - Node.js via NVM — `nvm`, `node`, `npm`, `tsx`, `pnpm`
 - Python 3 — `python3`, `pip`, `uv`
+- Bun — `bun`, `bunx`
 
 ### CLI Tools
 - `git`, `gh` (GitHub CLI), `delta` (git-delta)
@@ -50,6 +51,7 @@ MCP servers are configured on first shell login via `init-claude-mcp.sh`. Option
 
 ## Plugins & Skills
 - GSD (`/gsd:*`) — project management and execution workflow
+- gstack — 28 specialized engineering skills as slash commands (garrytan/gstack)
 - superpowers — brainstorming, TDD, debugging, code review skills
 - everything-claude-code (ECC) — rules installed at `~/.claude/rules/`
 - feature-dev, frontend-design, code-review, commit-commands, pr-review-toolkit

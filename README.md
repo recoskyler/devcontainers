@@ -162,6 +162,8 @@ All images extend a shared base (`base/Dockerfile` — `debian:trixie`) and run 
 - **MCP servers**: Serena, Context7, Automem
 - **GSD** (Get Shit Done for Claude Code)
 - **Agent Browser** + Chrome
+- **gstack** — 28 specialized Claude Code engineering skills ([garrytan/gstack](https://github.com/garrytan/gstack))
+- **Bun** runtime (`bun`, `bunx`)
 - **Docker** CLI + Compose plugin (`docker`, `docker compose`) — mount the host socket to use; works without `sudo` (the entrypoint automatically matches the socket's GID)
 - **CLI tools**: git, curl, wget, vim, nano, jq, tmux, xclip, openssh-client, gnupg, cmake, less, unzip, gh, pnpm, tsx
 - **Search & file tools**: ripgrep, fd-find, fzf, bat, tree
@@ -172,6 +174,8 @@ All images extend a shared base (`base/Dockerfile` — `debian:trixie`) and run 
 - **ttyd** (web terminal)
 - **Database clients**: postgresql-client, default-mysql-client, redis-tools
 - **ntfy** notification hooks (Notification + Stop events)
+- **pi** a minimal terminal coding harness
+- **CliDeck** one dashboard for all your AI coding agents
 
 ### Bun (`trixie-bun-nvm-uv-claude`)
 

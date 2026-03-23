@@ -208,6 +208,10 @@ WORKDIR /workspace
 # UV
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
+# Bun
+RUN curl -fsSL https://bun.sh/install | bash
+ENV PATH="/home/dev/.bun/bin:${PATH}"
+
 # Claude Plugins, MCP, Hooks
 ARG CONTEXT7_API_KEY=""
 ARG AUTOMEM_ENDPOINT=""
@@ -246,7 +250,7 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 # agent-browser
 WORKDIR /workspace
 
-RUN npm install -y -g agent-browser
+RUN npm install -y -g agent-browser clideck @mariozechner/pi-coding-agent
 
 RUN agent-browser install --with-deps
 

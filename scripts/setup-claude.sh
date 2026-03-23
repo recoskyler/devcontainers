@@ -57,6 +57,26 @@ rm -rf /tmp/everything-claude-code
 
 npx -y get-shit-done-cc --claude --global
 
+# --- gstack ---
+# Manual setup (skips Chromium launch check — agent-browser already provides Playwright)
+
+git clone https://github.com/garrytan/gstack.git "$HOME/.claude/skills/gstack"
+cd "$HOME/.claude/skills/gstack"
+bun install
+bun run build
+mkdir -p "$HOME/.gstack/projects"
+
+# Register skills — symlink each skill subdir into the skills parent
+for skill_dir in "$HOME/.claude/skills/gstack"/*/; do
+    if [ -f "$skill_dir/SKILL.md" ]; then
+        skill_name="$(basename "$skill_dir")"
+        [ "$skill_name" = "node_modules" ] && continue
+        ln -snf "gstack/$skill_name" "$HOME/.claude/skills/$skill_name"
+    fi
+done
+
+cd /workspace
+
 # --- MCP Servers ---
 
 if [ -x "$CLAUDE" ]; then
