@@ -250,7 +250,7 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 # agent-browser
 WORKDIR /workspace
 
-RUN npm install -y -g agent-browser
+RUN npm install -y -g agent-browser clideck @mariozechner/pi-coding-agent
 
 RUN agent-browser install --with-deps
 
