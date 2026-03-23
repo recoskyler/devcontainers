@@ -174,6 +174,8 @@ All images extend a shared base (`base/Dockerfile` — `debian:trixie`) and run 
 - **ttyd** (web terminal)
 - **Database clients**: postgresql-client, default-mysql-client, redis-tools
 - **ntfy** notification hooks (Notification + Stop events)
+- **pi** a minimal terminal coding harness
+- **CliDeck** one dashboard for all your AI coding agents
 
 ### Bun (`trixie-bun-nvm-uv-claude`)
 
