@@ -37,7 +37,7 @@ None.
 |---|-------------|------|--------|-----------|
 | 1 | Add tmux theme and ease of use config to base Dockerfile | 2026-03-08 | 7fc04c9 | [1-add-tmux-theme-and-ease-of-use-config-to](./quick/1-add-tmux-theme-and-ease-of-use-config-to/) |
 | 260322-wyy | add gstack to CLAUDE, update README, validate it works by building and creating a mock devcontainer | 2026-03-23 | 9ef5374 | [260322-wyy-add-gstack-to-claude-update-readme-valid](./quick/260322-wyy-add-gstack-to-claude-update-readme-valid/) |
-| 260329-lnd | create entrypoint merge mechanism for ~/.claude host bind-mounts | 2026-03-29 | 700cdfe | [260329-lnd-create-entrypoint-merge-mechanism-for-cl](./quick/260329-lnd-create-entrypoint-merge-mechanism-for-cl/) |
+| 260329-lnd | create entrypoint merge mechanism for ~/.claude host bind-mounts | 2026-03-29 | 4c86838 | [260329-lnd-create-entrypoint-merge-mechanism-for-cl](./quick/260329-lnd-create-entrypoint-merge-mechanism-for-cl/) |
 
 ## Session Continuity
 
