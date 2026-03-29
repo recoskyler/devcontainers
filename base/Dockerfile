@@ -228,10 +228,14 @@ ENV NTFY_TOKEN=${NTFY_TOKEN}
 COPY --chown=dev:dev scripts/ntfy-hook.sh $HOME/.local/bin/ntfy-hook.sh
 COPY --chown=dev:dev scripts/suggest-context7-hook.sh $HOME/.local/bin/suggest-context7-hook.sh
 COPY --chown=dev:dev scripts/init-claude-mcp.sh $HOME/.local/bin/init-claude-mcp.sh
-RUN chmod +x $HOME/.local/bin/ntfy-hook.sh $HOME/.local/bin/suggest-context7-hook.sh $HOME/.local/bin/init-claude-mcp.sh
+COPY --chown=dev:dev scripts/merge-claude-home.sh $HOME/.local/bin/merge-claude-home.sh
+RUN chmod +x $HOME/.local/bin/ntfy-hook.sh $HOME/.local/bin/suggest-context7-hook.sh $HOME/.local/bin/init-claude-mcp.sh $HOME/.local/bin/merge-claude-home.sh
 
 COPY --chown=dev:dev scripts/setup-claude.sh /tmp/setup-claude.sh
 RUN bash /tmp/setup-claude.sh && rm -f /tmp/setup-claude.sh
+
+# Create image marker for mount detection (must be AFTER setup-claude.sh)
+RUN echo "devcontainer-$(date +%s)" > $HOME/.claude/.image-marker
 
 RUN echo 'source $HOME/.local/bin/init-claude-mcp.sh 2>/dev/null' >> /home/dev/.bashrc
 
@@ -240,6 +244,10 @@ RUN tldr --update
 # ── Final root section ──────────────────────────────────────────────────────
 
 USER root
+
+# Snapshot ~/.claude to /opt/devcontainer-claude (for merge on host mount)
+RUN cp -a /home/dev/.claude /opt/devcontainer-claude \
+    && chown -R dev:dev /opt/devcontainer-claude
 
 RUN adduser dev sudo
 
