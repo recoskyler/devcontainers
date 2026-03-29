@@ -4,6 +4,11 @@
 # match the container's "docker" group. This script updates the container's
 # docker group GID to match the socket's GID, then re-execs with the new group.
 
+# Merge image-built ~/.claude tooling if host directory was mounted
+if [ -x "$HOME/.local/bin/merge-claude-home.sh" ]; then
+    "$HOME/.local/bin/merge-claude-home.sh" || true
+fi
+
 SOCKET="/var/run/docker.sock"
 
 if [ -S "$SOCKET" ]; then
