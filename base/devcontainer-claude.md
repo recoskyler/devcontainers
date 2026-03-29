@@ -78,3 +78,4 @@ Core workflow:
 ## Notes
 - Shell is bash. `/bin/sh` is symlinked to `/bin/bash`.
 - Passwordless sudo is available via `sudo`.
+- When host `~/.claude` is bind-mounted, the entrypoint auto-merges image tooling (plugins, skills, rules, GSD) into the mounted directory. Host files (credentials, settings) are never overwritten.
