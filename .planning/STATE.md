@@ -11,7 +11,7 @@ See: .planning/PROJECT.md (updated 2026-02-24)
 
 Milestone: v1.0 MVP — SHIPPED 2026-02-24
 Status: Milestone Complete
-Last activity: 2026-03-23 - Completed quick task 260322-wyy: add gstack to CLAUDE, update README, validate it works by building and creating a mock devcontainer
+Last activity: 2026-03-29 - Completed quick task 260329-lnd: create entrypoint merge mechanism for ~/.claude host bind-mounts
 
 Progress: [##########] 100%
 
@@ -37,9 +37,10 @@ None.
 |---|-------------|------|--------|-----------|
 | 1 | Add tmux theme and ease of use config to base Dockerfile | 2026-03-08 | 7fc04c9 | [1-add-tmux-theme-and-ease-of-use-config-to](./quick/1-add-tmux-theme-and-ease-of-use-config-to/) |
 | 260322-wyy | add gstack to CLAUDE, update README, validate it works by building and creating a mock devcontainer | 2026-03-23 | 9ef5374 | [260322-wyy-add-gstack-to-claude-update-readme-valid](./quick/260322-wyy-add-gstack-to-claude-update-readme-valid/) |
+| 260329-lnd | create entrypoint merge mechanism for ~/.claude host bind-mounts | 2026-03-29 | 700cdfe | [260329-lnd-create-entrypoint-merge-mechanism-for-cl](./quick/260329-lnd-create-entrypoint-merge-mechanism-for-cl/) |
 
 ## Session Continuity
 
-Last session: 2026-03-23
-Stopped at: Completed quick task 260322-wyy (gstack + Bun)
+Last session: 2026-03-29
+Stopped at: Completed quick task 260329-lnd (entrypoint merge mechanism)
 Resume file: None
