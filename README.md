@@ -52,6 +52,12 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
                 - ..:/workspace:cached
                 - home:/home
                 - /var/run/docker.sock:/var/run/docker.sock
+                # Host credentials (see "Host Credentials" section below)
+                - ~/.claude:/home/dev/.claude
+                - ~/.ssh:/home/dev/.ssh:ro
+                - ~/.gitconfig:/home/dev/.gitconfig:ro
+                - ~/.config/gh:/home/dev/.config/gh:ro
+                - ~/.config/github-copilot:/home/dev/.config/github-copilot:ro
 
             # Overrides default command so things don't
             # shut down after the process ends
@@ -229,6 +235,25 @@ Secret-dependent MCP servers and ntfy hooks are configured at **runtime** (first
 | `NTFY_TOKEN` | [ntfy](https://ntfy.sh) authentication token for notification hooks (skipped if empty) |
 
 > Optional MCP servers and ntfy hooks are only configured when their corresponding environment variables are set.
+
+## Host Credentials
+
+Mount host directories to forward credentials and settings into the container. The entrypoint automatically merges image-built tooling (plugins, skills, rules, GSD) with your host files — nothing is lost.
+
+| Host Path | Container Path | Purpose |
+|-----------|---------------|---------|
+| `~/.claude` | `/home/dev/.claude` | Claude Code auth, settings, memory, and projects |
+| `~/.ssh` | `/home/dev/.ssh:ro` | SSH keys for git and remote access |
+| `~/.gitconfig` | `/home/dev/.gitconfig:ro` | Git identity and config |
+| `~/.config/gh` | `/home/dev/.config/gh:ro` | GitHub CLI auth tokens |
+| `~/.config/github-copilot` | `/home/dev/.config/github-copilot:ro` | GitHub Copilot OAuth tokens |
+| `~/.gnupg` | `/home/dev/.gnupg:ro` | GPG keys for signed commits |
+
+> **How the `~/.claude` merge works:** At build time, the image snapshots all tooling to `/opt/devcontainer-claude/`. When a host `~/.claude` bind-mount is detected at container start, the entrypoint copies missing tooling (plugins, skills, rules, GSD) into the mounted directory without overwriting host files. The image's `CLAUDE.md` is appended if the host version lacks the DevContainer section. The merge is idempotent — container restarts won't duplicate content.
+
+> **Note:** Use `:ro` (read-only) for credentials you don't want the container to modify. `~/.claude` is mounted read-write because Claude Code writes memory, session state, and settings at runtime.
+
+> **Important:** Ensure host files exist before first launch. If a mounted path doesn't exist on the host, Docker creates it as an empty directory, which may cause unexpected behavior.
 
 ## CI/CD
 
