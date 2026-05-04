@@ -8,5 +8,8 @@
     "plan_check": true,
     "verifier": true
   },
-  "granularity": "coarse"
+  "granularity": "coarse",
+  "graphify": {
+    "enabled": true
+  }
 }

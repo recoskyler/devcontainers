@@ -34,8 +34,6 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
 
             environment:
                 - CONTEXT7_API_KEY=your-key
-                - AUTOMEM_ENDPOINT=your-endpoint
-                - AUTOMEM_API_KEY=your-key
                 - NTFY_URL=https://ntfy.sh/your-topic
                 - NTFY_TOKEN=your-token
                 - ENABLE_TOOL_SEARCH=true
@@ -165,8 +163,10 @@ All images extend a shared base (`base/Dockerfile` — `debian:trixie`) and run 
 - **Node.js** via NVM (default: 24.12.0)
 - **UV** (Python package manager)
 - **Claude Code** CLI + plugins (ECC, Superpowers, official plugin suite)
-- **MCP servers**: Serena, Context7, Automem
-- **GSD** (Get Shit Done for Claude Code)
+- **MCP servers**: Serena, Context7
+- **GSD** — Get Shit Done coding workflow (Claude Code via [get-shit-done-cc](https://github.com/gsd-build/get-shit-done-cc), Pi via [gsd-pi](https://github.com/gsd-build/gsd-2))
+- **MemPalace** — local AI memory; mines projects and conversations into a searchable palace, no API key required ([MemPalace/mempalace](https://github.com/MemPalace/mempalace))
+- **Graphify** — knowledge-graph skill; turns any folder of code, docs, papers, images, or videos into a queryable graph ([safishamsi/graphify](https://github.com/safishamsi/graphify))
 - **Agent Browser** + Chrome
 - **gstack** — 28 specialized Claude Code engineering skills ([garrytan/gstack](https://github.com/garrytan/gstack))
 - **Bun** runtime (`bun`, `bunx`)
@@ -180,8 +180,8 @@ All images extend a shared base (`base/Dockerfile` — `debian:trixie`) and run 
 - **ttyd** (web terminal)
 - **Database clients**: postgresql-client, default-mysql-client, redis-tools
 - **ntfy** notification hooks (Notification + Stop events)
-- **pi** a minimal terminal coding harness
-- **CliDeck** one dashboard for all your AI coding agents
+- **pi** — minimal terminal coding harness, with `pi-agent-browser` for browser automation
+- **CliDeck** — one dashboard for all your AI coding agents
 
 ### Bun (`trixie-bun-nvm-uv-claude`)
 
@@ -229,8 +229,6 @@ Secret-dependent MCP servers and ntfy hooks are configured at **runtime** (first
 | Variable | Description |
 |----------|-------------|
 | `CONTEXT7_API_KEY` | [Context7](https://context7.com) MCP server API key (skipped if empty) |
-| `AUTOMEM_ENDPOINT` | [Automem](https://github.com/verygoodplugins/mcp-automem) MCP server endpoint URL (skipped if empty) |
-| `AUTOMEM_API_KEY` | [Automem](https://github.com/verygoodplugins/mcp-automem) MCP server API key (skipped if empty) |
 | `NTFY_URL` | [ntfy](https://ntfy.sh) server/topic URL for notification hooks (skipped if empty) |
 | `NTFY_TOKEN` | [ntfy](https://ntfy.sh) authentication token for notification hooks (skipped if empty) |
 
@@ -303,8 +301,6 @@ Then run with your API keys as environment variables:
 ```bash
 docker run -it \
   -e CONTEXT7_API_KEY=your-key \
-  -e AUTOMEM_ENDPOINT=your-endpoint \
-  -e AUTOMEM_API_KEY=your-key \
   -e NTFY_URL=https://ntfy.sh/your-topic \
   -e NTFY_TOKEN=your-token \
   trixie-bun-nvm-uv-claude

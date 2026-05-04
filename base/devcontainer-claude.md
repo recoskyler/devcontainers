@@ -47,7 +47,6 @@ MCP servers are configured on first shell login via `init-claude-mcp.sh`. Option
 
 - `serena` — semantic code analysis (symbols, references, overview)
 - `context7` — library documentation lookup (if CONTEXT7_API_KEY is set)
-- `memory` — persistent memory via Automem (if AUTOMEM_ENDPOINT is set)
 
 ## Plugins & Skills
 - GSD (`/gsd:*`) — project management and execution workflow

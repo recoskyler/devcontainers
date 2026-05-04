@@ -214,14 +214,10 @@ ENV PATH="/home/dev/.bun/bin:${PATH}"
 
 # Claude Plugins, MCP, Hooks
 ARG CONTEXT7_API_KEY=""
-ARG AUTOMEM_ENDPOINT=""
-ARG AUTOMEM_API_KEY=""
 ARG NTFY_URL=""
 ARG NTFY_TOKEN=""
 
 ENV CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
-ENV AUTOMEM_ENDPOINT=${AUTOMEM_ENDPOINT}
-ENV AUTOMEM_API_KEY=${AUTOMEM_API_KEY}
 ENV NTFY_URL=${NTFY_URL}
 ENV NTFY_TOKEN=${NTFY_TOKEN}
 
@@ -258,7 +254,13 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 # agent-browser
 WORKDIR /workspace
 
-RUN npm install -y -g agent-browser clideck @mariozechner/pi-coding-agent
+RUN npm install -y -g agent-browser clideck @mariozechner/pi-coding-agent gsd-pi@latest
+
+RUN pi install npm:pi-agent-browser
+
+RUN pip install --break-system-packages mempalace graphifyy
+
+RUN graphify install
 
 RUN agent-browser install --with-deps
 

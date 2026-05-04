@@ -6,8 +6,8 @@ CLAUDE="$HOME/.local/bin/claude"
 # --- Claude Plugins ---
 
 if [ -x "$CLAUDE" ]; then
-    $CLAUDE plugin marketplace add affaan-m/everything-claude-code
-    $CLAUDE plugin install everything-claude-code@everything-claude-code
+    # ECC — low-context / no-hooks install (rules + agents + commands + core skills, no hooks-runtime)
+    npx -y ecc-install --profile minimal --target claude
 
     $CLAUDE plugin marketplace add obra/superpowers
     $CLAUDE plugin install superpowers@superpowers-dev
@@ -47,11 +47,7 @@ HOOKIFY_DIR="$HOME/.claude/plugins/cache/claude-code-plugins/hookify/0.1.0"
 
 # --- ECC Rules ---
 
-git clone https://github.com/affaan-m/everything-claude-code.git /tmp/everything-claude-code
-mkdir -p "$HOME/.claude/rules"
-cp -r /tmp/everything-claude-code/rules/common/* "$HOME/.claude/rules/"
-cp -r /tmp/everything-claude-code/rules/typescript/* "$HOME/.claude/rules/"
-rm -rf /tmp/everything-claude-code
+
 
 # --- GSD ---
 

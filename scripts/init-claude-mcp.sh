@@ -32,16 +32,6 @@ if [ -n "$CONTEXT7_API_KEY" ]; then
     fi
 fi
 
-# --- Automem MCP ---
-if [ -n "$AUTOMEM_ENDPOINT" ] && [ -n "$AUTOMEM_API_KEY" ]; then
-    if ! grep -q '"memory"' "$CLAUDE_JSON" 2>/dev/null; then
-        $CLAUDE mcp add --transport stdio -s user \
-            --env="AUTOMEM_ENDPOINT=$AUTOMEM_ENDPOINT" \
-            --env="AUTOMEM_API_KEY=$AUTOMEM_API_KEY" \
-            memory -- npx -y @verygoodplugins/mcp-automem
-    fi
-fi
-
 # --- Ntfy Hooks ---
 if [ -n "$NTFY_URL" ] && [ -n "$NTFY_TOKEN" ]; then
     if ! grep -q 'ntfy-hook' "$CLAUDE_JSON" 2>/dev/null; then
@@ -62,17 +52,11 @@ if [ -n "$NTFY_URL" ] && [ -n "$NTFY_TOKEN" ]; then
 fi
 
 # --- Serena user-scope config ---
-# Exclude Serena memory tools via user config
+# Disable Serena memory mutation tools via user config
 SERENA_USER="$HOME/.serena/user.yml"
 mkdir -p "$HOME/.serena"
 if [ ! -f "$SERENA_USER" ] || grep -q '^excluded_tools: \[\]' "$SERENA_USER"; then
-    if [ -n "$AUTOMEM_ENDPOINT" ] && [ -n "$AUTOMEM_API_KEY" ]; then
-        # Automem replaces all Serena memory/onboarding tools
-        TOOLS=(write_memory read_memory edit_memory delete_memory list_memories check_onboarding_performed onboarding)
-    else
-        # No Automem backend: disable memory mutation tools
-        TOOLS=(write_memory delete_memory read_memory)
-    fi
+    TOOLS=(write_memory delete_memory read_memory)
 
     YAML="excluded_tools:"
     for t in "${TOOLS[@]}"; do
