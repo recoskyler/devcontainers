@@ -239,6 +239,7 @@ ENV NTFY_TOKEN=${NTFY_TOKEN}
 
 COPY --chown=dev:dev scripts/ntfy-hook.sh $HOME/.local/bin/ntfy-hook.sh
 COPY --chown=dev:dev scripts/init-claude-mcp.sh $HOME/.local/bin/init-claude-mcp.sh
+COPY --chown=dev:dev base/ttyd-overlay.html $HOME/ttyd-overlay.html
 RUN chmod +x $HOME/.local/bin/ntfy-hook.sh $HOME/.local/bin/init-claude-mcp.sh
 
 COPY --chown=dev:dev scripts/setup-claude.sh /tmp/setup-claude.sh
