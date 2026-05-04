@@ -225,6 +225,7 @@ COPY --chown=dev:dev scripts/ntfy-hook.sh $HOME/.local/bin/ntfy-hook.sh
 COPY --chown=dev:dev scripts/suggest-context7-hook.sh $HOME/.local/bin/suggest-context7-hook.sh
 COPY --chown=dev:dev scripts/init-claude-mcp.sh $HOME/.local/bin/init-claude-mcp.sh
 COPY --chown=dev:dev scripts/merge-claude-home.sh $HOME/.local/bin/merge-claude-home.sh
+COPY --chown=dev:dev base/ttyd-overlay.html $HOME/ttyd-overlay.html
 RUN chmod +x $HOME/.local/bin/ntfy-hook.sh $HOME/.local/bin/suggest-context7-hook.sh $HOME/.local/bin/init-claude-mcp.sh $HOME/.local/bin/merge-claude-home.sh
 
 COPY --chown=dev:dev scripts/setup-claude.sh /tmp/setup-claude.sh
