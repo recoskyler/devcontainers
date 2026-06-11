@@ -40,11 +40,11 @@ This is a project containing pre-configured Dockerfiles for building and hosting
 
 ## CI/CD notes
 
-- Both workflows use a two-job structure: `base` builds the base image with GHA cache, then `variants` runs 5 parallel matrix jobs
+- Both workflows use a two-job structure: `base` builds the base image with GHA cache, then `variants` runs the variant matrix jobs. Every image is built twice (Docker + no-docker) via the `INSTALL_DOCKER` build-arg: `base` runs 2 matrix jobs and `variants` runs 10 (5 × {docker, no-docker}); no-docker builds get a `-nodocker` tag suffix
 - Variant jobs use a `registry:2` service container + `build-contexts` (via `matrix.build_contexts`) to remap FROM images to the local registry — no Dockerfile changes needed
 - The flutter variant has a three-tier chain (base -> VNC -> flutter) with a conditional VNC rebuild step (`if: matrix.needs_vnc`)
 - `build.yml` writes GHA cache (`cache-to`); `check.yml` only reads it (`cache-from`)
-- GHA cache scopes: `base`, `bun`, `php`, `rust`, `vnc`, `flutter`
+- GHA cache scopes: `base`, `bun`, `php`, `rust`, `vnc`, `flutter` (plus `base-nodocker`, `bun-nodocker`, `php-nodocker`, `rust-nodocker`, `vnc-nodocker`, `flutter-nodocker` for the no-docker builds)
 
 ## Testing and validation
 

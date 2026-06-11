@@ -17,9 +17,20 @@ jobs:
   base:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    name: devcontainer-base${{ matrix.suffix }}
     permissions:
       contents: read
       packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - install_docker: true
+            suffix: ""
+            scope: base
+          - install_docker: false
+            suffix: "-nodocker"
+            scope: base-nodocker
 
     steps:
       - name: Checkout
@@ -40,6 +51,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/devcontainer-base
+          flavor: |
+            suffix=${{ matrix.suffix }},onlatest=true
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{version}}
@@ -53,13 +66,16 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=base
-          cache-to: type=gha,mode=max,scope=base
+          build-args: |
+            INSTALL_DOCKER=${{ matrix.install_docker }}
+          cache-from: type=gha,scope=${{ matrix.scope }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.scope }}
 
   # ── Phase 2: Build and push language images (parallel) ──────────────────────
   variants:
     needs: base
     runs-on: ubuntu-latest
+    name: ${{ matrix.name }}${{ matrix.suffix }}
     timeout-minutes: 30
     permissions:
       contents: read
@@ -71,19 +87,67 @@ jobs:
         include:
           - name: trixie-bun-nvm-uv-claude
             scope: bun
+            base_scope: base
+            install_docker: true
+            suffix: ""
+            build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
+          - name: trixie-bun-nvm-uv-claude
+            scope: bun-nodocker
+            base_scope: base-nodocker
+            install_docker: false
+            suffix: "-nodocker"
             build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
           - name: trixie-php-nvm-uv-claude
             scope: php
+            base_scope: base
+            install_docker: true
+            suffix: ""
+            build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
+          - name: trixie-php-nvm-uv-claude
+            scope: php-nodocker
+            base_scope: base-nodocker
+            install_docker: false
+            suffix: "-nodocker"
             build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
           - name: trixie-rust-nvm-uv-claude
             scope: rust
+            base_scope: base
+            install_docker: true
+            suffix: ""
+            build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
+          - name: trixie-rust-nvm-uv-claude
+            scope: rust-nodocker
+            base_scope: base-nodocker
+            install_docker: false
+            suffix: "-nodocker"
             build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
           - name: trixie-vnc-nvm-uv-claude
             scope: vnc
+            base_scope: base
+            install_docker: true
+            suffix: ""
+            build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
+          - name: trixie-vnc-nvm-uv-claude
+            scope: vnc-nodocker
+            base_scope: base-nodocker
+            install_docker: false
+            suffix: "-nodocker"
             build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
           - name: trixie-vnc-flutter-rust-nvm-uv-claude
             scope: flutter
+            base_scope: base
+            install_docker: true
+            suffix: ""
             needs_vnc: true
+            vnc_scope: vnc
+            build_contexts: trixie-vnc-nvm-uv-claude:latest=docker-image://localhost:5000/trixie-vnc-nvm-uv-claude:latest
+          - name: trixie-vnc-flutter-rust-nvm-uv-claude
+            scope: flutter-nodocker
+            base_scope: base-nodocker
+            install_docker: false
+            suffix: "-nodocker"
+            needs_vnc: true
+            vnc_scope: vnc-nodocker
             build_contexts: trixie-vnc-nvm-uv-claude:latest=docker-image://localhost:5000/trixie-vnc-nvm-uv-claude:latest
 
     services:
@@ -118,7 +182,9 @@ jobs:
           file: base/Dockerfile
           push: true
           tags: localhost:5000/devcontainer-base:latest
-          cache-from: type=gha,scope=base
+          build-args: |
+            INSTALL_DOCKER=${{ matrix.install_docker }}
+          cache-from: type=gha,scope=${{ matrix.base_scope }}
 
       - name: Rebuild VNC from cache and push to local registry
         if: matrix.needs_vnc
@@ -129,13 +195,17 @@ jobs:
           push: true
           tags: localhost:5000/trixie-vnc-nvm-uv-claude:latest
           build-contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
-          cache-from: type=gha,scope=vnc
+          build-args: |
+            INSTALL_DOCKER=${{ matrix.install_docker }}
+          cache-from: type=gha,scope=${{ matrix.vnc_scope }}
 
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.name }}
+          flavor: |
+            suffix=${{ matrix.suffix }},onlatest=true
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{version}}

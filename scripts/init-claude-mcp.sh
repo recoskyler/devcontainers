@@ -9,29 +9,6 @@ CLAUDE_JSON="$HOME/.claude.json"
 
 [ -f "$CLAUDE_JSON" ] || echo '{}' > "$CLAUDE_JSON"
 
-# --- Context7 MCP ---
-if [ -n "$CONTEXT7_API_KEY" ]; then
-    if ! grep -q '"context7"' "$CLAUDE_JSON" 2>/dev/null; then
-        $CLAUDE mcp add --transport stdio -s user context7 -- \
-            npx -y @upstash/context7-mcp --api-key "$CONTEXT7_API_KEY"
-    fi
-
-    # Register WebSearch suggestion hook
-    if ! grep -q 'suggest-context7-hook' "$CLAUDE_JSON" 2>/dev/null; then
-        HOOK_CMD="$HOME/.local/bin/suggest-context7-hook.sh"
-        chmod +x "$HOOK_CMD" 2>/dev/null
-
-        HOOKS_JSON=$(jq -n \
-            --arg cmd "$HOOK_CMD" \
-            '{
-                PreToolUse: [{matcher: "WebSearch", hooks: [{type: "command", command: $cmd}]}]
-            }')
-
-        jq --argjson newhooks "$HOOKS_JSON" '. + {hooks: ((.hooks // {}) * $newhooks)}' "$CLAUDE_JSON" > "$CLAUDE_JSON.tmp"
-        mv "$CLAUDE_JSON.tmp" "$CLAUDE_JSON"
-    fi
-fi
-
 # --- Automem MCP ---
 if [ -n "$AUTOMEM_ENDPOINT" ] && [ -n "$AUTOMEM_API_KEY" ]; then
     if ! grep -q '"memory"' "$CLAUDE_JSON" 2>/dev/null; then
@@ -58,33 +35,6 @@ if [ -n "$NTFY_URL" ] && [ -n "$NTFY_TOKEN" ]; then
 
         jq --argjson newhooks "$HOOKS_JSON" '. + {hooks: ((.hooks // {}) * $newhooks)}' "$CLAUDE_JSON" > "$CLAUDE_JSON.tmp"
         mv "$CLAUDE_JSON.tmp" "$CLAUDE_JSON"
-    fi
-fi
-
-# --- Serena user-scope config ---
-# Exclude Serena memory tools via user config
-SERENA_USER="$HOME/.serena/user.yml"
-mkdir -p "$HOME/.serena"
-if [ ! -f "$SERENA_USER" ] || grep -q '^excluded_tools: \[\]' "$SERENA_USER"; then
-    if [ -n "$AUTOMEM_ENDPOINT" ] && [ -n "$AUTOMEM_API_KEY" ]; then
-        # Automem replaces all Serena memory/onboarding tools
-        TOOLS=(write_memory read_memory edit_memory delete_memory list_memories check_onboarding_performed onboarding)
-    else
-        # No Automem backend: disable memory mutation tools
-        TOOLS=(write_memory delete_memory read_memory)
-    fi
-
-    YAML="excluded_tools:"
-    for t in "${TOOLS[@]}"; do
-        YAML="${YAML}
-- ${t}"
-    done
-
-    if [ -f "$SERENA_USER" ]; then
-        awk -v new="$YAML" '/^excluded_tools: \[\]/ { print new; next } 1' "$SERENA_USER" > "$SERENA_USER.tmp"
-        mv "$SERENA_USER.tmp" "$SERENA_USER"
-    else
-        printf '%s\n' "$YAML" > "$SERENA_USER"
     fi
 fi
 

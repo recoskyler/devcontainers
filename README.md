@@ -33,13 +33,11 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
                 - default
 
             environment:
-                - CONTEXT7_API_KEY=your-key
                 - AUTOMEM_ENDPOINT=your-endpoint
                 - AUTOMEM_API_KEY=your-key
                 - NTFY_URL=https://ntfy.sh/your-topic
                 - NTFY_TOKEN=your-token
                 - ENABLE_TOOL_SEARCH=true
-                - ENABLE_EXPERIMENTAL_MCP_CLI=false
                 - CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS="1"
                 - DISPLAY=":0"
 
@@ -149,14 +147,16 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
 
 All images extend a shared base (`base/Dockerfile` — `debian:trixie`) and run as user `dev` (UID 1000, home `/home/dev`).
 
-| Image | Extra stack |
-|-------|-------------|
-| `ghcr.io/recoskyler/devcontainer-base:latest` | — (base only) |
-| `ghcr.io/recoskyler/trixie-bun-nvm-uv-claude:latest` | Bun |
-| `ghcr.io/recoskyler/trixie-php-nvm-uv-claude:latest` | PHP 8.4, Composer |
-| `ghcr.io/recoskyler/trixie-rust-nvm-uv-claude:latest` | Rust toolchain |
-| `ghcr.io/recoskyler/trixie-vnc-nvm-uv-claude:latest` | x11vnc, Xvfb |
-| `ghcr.io/recoskyler/trixie-vnc-flutter-rust-nvm-uv-claude:latest` | Flutter, Rust, Android SDK, VNC |
+Every image is published in two flavors: the default tag includes the Docker CLI + Compose plugin, and the `-nodocker` tag omits them (built with `INSTALL_DOCKER=false`).
+
+| Image | Docker tag | No-docker tag | Extra stack |
+|-------|------------|---------------|-------------|
+| `ghcr.io/recoskyler/devcontainer-base` | `:latest` | `:latest-nodocker` | — (base only) |
+| `ghcr.io/recoskyler/trixie-bun-nvm-uv-claude` | `:latest` | `:latest-nodocker` | Bun |
+| `ghcr.io/recoskyler/trixie-php-nvm-uv-claude` | `:latest` | `:latest-nodocker` | PHP 8.4, Composer |
+| `ghcr.io/recoskyler/trixie-rust-nvm-uv-claude` | `:latest` | `:latest-nodocker` | Rust toolchain |
+| `ghcr.io/recoskyler/trixie-vnc-nvm-uv-claude` | `:latest` | `:latest-nodocker` | x11vnc, Xvfb |
+| `ghcr.io/recoskyler/trixie-vnc-flutter-rust-nvm-uv-claude` | `:latest` | `:latest-nodocker` | Flutter, Rust, Android SDK, VNC |
 
 ## What's Included
 
@@ -165,12 +165,11 @@ All images extend a shared base (`base/Dockerfile` — `debian:trixie`) and run 
 - **Node.js** via NVM (default: 24.12.0)
 - **UV** (Python package manager)
 - **Claude Code** CLI + plugins (ECC, Superpowers, official plugin suite)
-- **MCP servers**: Serena, Context7, Automem
-- **GSD** (Get Shit Done for Claude Code)
+- **MCP servers**: Automem
+- **GSD** (Git Ship Done Core + Browser)
 - **Agent Browser** + Chrome
-- **gstack** — 28 specialized Claude Code engineering skills ([garrytan/gstack](https://github.com/garrytan/gstack))
 - **Bun** runtime (`bun`, `bunx`)
-- **Docker** CLI + Compose plugin (`docker`, `docker compose`) — mount the host socket to use; works without `sudo` (the entrypoint automatically matches the socket's GID)
+- **Docker** CLI + Compose plugin (`docker`, `docker compose`) — mount the host socket to use; works without `sudo` (the entrypoint automatically matches the socket's GID). Optional: build with `--build-arg INSTALL_DOCKER=false` to omit it (see [Build Arguments](#build-arguments))
 - **CLI tools**: git, curl, wget, vim, nano, jq, tmux, xclip, openssh-client, gnupg, cmake, less, unzip, gh, pnpm, tsx
 - **Search & file tools**: ripgrep, fd-find, fzf, bat, tree
 - **PDF tools**: poppler-utils (pdftotext, pdfinfo, etc.)
@@ -221,6 +220,9 @@ Extends the VNC image with Flutter, Rust, and Android tooling.
 | Argument | Default | Description |
 |----------|---------|-------------|
 | `NODE_VERSION` | `24.12.0` | Node.js version installed via NVM |
+| `INSTALL_DOCKER` | `true` | Install the Docker CLI + Compose plugin (Docker-outside-of-Docker). Set to `false` to omit them. |
+
+> `INSTALL_DOCKER` is defined on the base image, so it applies to every variant. Pass it when building the base (variants inherit the result via their `FROM`). When set to `false`, no Docker CLI is installed; the `docker` group and socket-fix entrypoint remain but are inert unless a host socket is mounted. CI publishes both flavors for every image: a Docker-enabled image (`:latest`) and a no-docker image (`:latest-nodocker`).
 
 ## Runtime Environment Variables
 
@@ -228,7 +230,6 @@ Secret-dependent MCP servers and ntfy hooks are configured at **runtime** (first
 
 | Variable | Description |
 |----------|-------------|
-| `CONTEXT7_API_KEY` | [Context7](https://context7.com) MCP server API key (skipped if empty) |
 | `AUTOMEM_ENDPOINT` | [Automem](https://github.com/verygoodplugins/mcp-automem) MCP server endpoint URL (skipped if empty) |
 | `AUTOMEM_API_KEY` | [Automem](https://github.com/verygoodplugins/mcp-automem) MCP server API key (skipped if empty) |
 | `NTFY_URL` | [ntfy](https://ntfy.sh) server/topic URL for notification hooks (skipped if empty) |
@@ -236,35 +237,18 @@ Secret-dependent MCP servers and ntfy hooks are configured at **runtime** (first
 
 > Optional MCP servers and ntfy hooks are only configured when their corresponding environment variables are set.
 
-## Host Credentials
-
-Mount host directories to forward credentials and settings into the container. The entrypoint automatically merges image-built tooling (plugins, skills, rules, GSD) with your host files — nothing is lost.
-
-| Host Path | Container Path | Purpose |
-|-----------|---------------|---------|
-| `~/.claude` | `/home/dev/.claude` | Claude Code auth, settings, memory, and projects |
-| `~/.ssh` | `/home/dev/.ssh:ro` | SSH keys for git and remote access |
-| `~/.gitconfig` | `/home/dev/.gitconfig:ro` | Git identity and config |
-| `~/.config/gh` | `/home/dev/.config/gh:ro` | GitHub CLI auth tokens |
-| `~/.config/github-copilot` | `/home/dev/.config/github-copilot:ro` | GitHub Copilot OAuth tokens |
-| `~/.gnupg` | `/home/dev/.gnupg:ro` | GPG keys for signed commits |
-
-> **How the `~/.claude` merge works:** At build time, the image snapshots all tooling to `/opt/devcontainer-claude/`. When a host `~/.claude` bind-mount is detected at container start, the entrypoint copies missing tooling (plugins, skills, rules, GSD) into the mounted directory without overwriting host files. The image's `CLAUDE.md` is appended if the host version lacks the DevContainer section. The merge is idempotent — container restarts won't duplicate content.
-
-> **Note:** Use `:ro` (read-only) for credentials you don't want the container to modify. `~/.claude` is mounted read-write because Claude Code writes memory, session state, and settings at runtime.
-
-> **Important:** Ensure host files exist before first launch. If a mounted path doesn't exist on the host, Docker creates it as an empty directory, which may cause unexpected behavior.
-
 ## CI/CD
 
 Two GitHub Actions workflows build and verify images:
 
-- **`build.yml`** — Runs on push to `latest` or version tags. Builds the base image with GHA cache, then builds and pushes all 5 variants to GHCR in parallel (matrix strategy).
+- **`build.yml`** — Runs on push to `latest` or version tags. Builds the base image with GHA cache, then builds and pushes all variants to GHCR in parallel (matrix strategy).
 - **`check.yml`** — Runs on PRs to `latest`. Same structure but read-only cache (no `cache-to`) and no push to GHCR. Each variant runs tool verification and posts results as PR comments.
+
+Each workflow builds every image **twice** via the matrix — once with Docker (the default) and once without (`INSTALL_DOCKER=false`). The `base` job runs 2 matrix jobs (Docker + no-docker) and the `variants` job runs 10 (5 variants × {docker, no-docker}). No-docker images carry a `-nodocker` tag suffix.
 
 Both workflows use a local `registry:2` service container and `build-contexts` to remap `FROM` images at build time, requiring zero Dockerfile changes. The flutter variant has a three-tier chain (base → VNC → flutter) with a conditional VNC rebuild step.
 
-Images are published to GHCR at `ghcr.io/<owner>/<image-name>`.
+Images are published to GHCR at `ghcr.io/<owner>/<image-name>`. Docker-enabled images use the normal tags (`:latest`, `:<version>`); no-docker images use the same tags with a `-nodocker` suffix (`:latest-nodocker`, `:<version>-nodocker`).
 
 ### Tags
 
@@ -302,7 +286,6 @@ Then run with your API keys as environment variables:
 
 ```bash
 docker run -it \
-  -e CONTEXT7_API_KEY=your-key \
   -e AUTOMEM_ENDPOINT=your-endpoint \
   -e AUTOMEM_API_KEY=your-key \
   -e NTFY_URL=https://ntfy.sh/your-topic \

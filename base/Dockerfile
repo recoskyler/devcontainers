@@ -39,6 +39,7 @@ RUN apt-get update \
     poppler-utils \
     postgresql-client \
     python3-pip \
+    python3-dev \
     redis-tools \
     ripgrep \
     sudo \
@@ -87,10 +88,14 @@ WORKDIR /workspace
 RUN curl -s https://packages.stripe.dev/api/security/keypair/stripe-cli-gpg/public | gpg --dearmor | tee /usr/share/keyrings/stripe.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/stripe.gpg] https://packages.stripe.dev/stripe-cli-debian-local stable main" | tee -a /etc/apt/sources.list.d/stripe.list
 
-# Docker CLI
-RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian trixie stable" \
-       | tee /etc/apt/sources.list.d/docker.list
+# Docker CLI (outside-of-Docker: talks to a bind-mounted host socket).
+# Set INSTALL_DOCKER=false to omit the Docker CLI and Compose plugin entirely.
+ARG INSTALL_DOCKER=true
+RUN if [ "$INSTALL_DOCKER" = "true" ]; then \
+        curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker.gpg \
+        && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian trixie stable" \
+           | tee /etc/apt/sources.list.d/docker.list; \
+    fi
 
 # GH CLI + Stripe CLI install
 RUN mkdir -p -m 755 /etc/apt/keyrings \
@@ -101,7 +106,8 @@ RUN mkdir -p -m 755 /etc/apt/keyrings \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
        | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
     && apt-get update \
-    && apt-get -y install --no-install-recommends gh stripe docker-ce-cli docker-compose-plugin
+    && if [ "$INSTALL_DOCKER" = "true" ]; then DOCKER_PKGS="docker-ce-cli docker-compose-plugin"; fi \
+    && apt-get -y install --no-install-recommends gh stripe $DOCKER_PKGS
 
 # ── CLI tools (releases) ────────────────────────────────────────────────────
 
@@ -110,6 +116,8 @@ RUN ARCH=$(dpkg --print-architecture) \
     && curl -fsSL "https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_${ARCH}.deb" -o /tmp/git-delta.deb \
     && dpkg -i /tmp/git-delta.deb \
     && rm -f /tmp/git-delta.deb
+
+RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
 
 # AWS CLI v2
 RUN ARCH=$(uname -m) \
@@ -134,6 +142,9 @@ RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | gpg --d
 
 # ── User setup ───────────────────────────────────────────────────────────────
 
+# Always create the docker group / membership even when INSTALL_DOCKER=false:
+# it is harmless without the CLI and keeps docker-sock-fix.sh working if a host
+# socket is later bind-mounted.
 RUN groupadd -f docker
 
 RUN id dev >/dev/null 2>&1 \
@@ -213,23 +224,19 @@ RUN curl -fsSL https://bun.sh/install | bash
 ENV PATH="/home/dev/.bun/bin:${PATH}"
 
 # Claude Plugins, MCP, Hooks
-ARG CONTEXT7_API_KEY=""
 ARG AUTOMEM_ENDPOINT=""
 ARG AUTOMEM_API_KEY=""
 ARG NTFY_URL=""
 ARG NTFY_TOKEN=""
 
-ENV CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
 ENV AUTOMEM_ENDPOINT=${AUTOMEM_ENDPOINT}
 ENV AUTOMEM_API_KEY=${AUTOMEM_API_KEY}
 ENV NTFY_URL=${NTFY_URL}
 ENV NTFY_TOKEN=${NTFY_TOKEN}
 
 COPY --chown=dev:dev scripts/ntfy-hook.sh $HOME/.local/bin/ntfy-hook.sh
-COPY --chown=dev:dev scripts/suggest-context7-hook.sh $HOME/.local/bin/suggest-context7-hook.sh
 COPY --chown=dev:dev scripts/init-claude-mcp.sh $HOME/.local/bin/init-claude-mcp.sh
-COPY --chown=dev:dev scripts/merge-claude-home.sh $HOME/.local/bin/merge-claude-home.sh
-RUN chmod +x $HOME/.local/bin/ntfy-hook.sh $HOME/.local/bin/suggest-context7-hook.sh $HOME/.local/bin/init-claude-mcp.sh $HOME/.local/bin/merge-claude-home.sh
+RUN chmod +x $HOME/.local/bin/ntfy-hook.sh $HOME/.local/bin/init-claude-mcp.sh
 
 COPY --chown=dev:dev scripts/setup-claude.sh /tmp/setup-claude.sh
 RUN bash /tmp/setup-claude.sh && rm -f /tmp/setup-claude.sh
@@ -258,7 +265,8 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 # agent-browser
 WORKDIR /workspace
 
-RUN npm install -y -g agent-browser clideck @mariozechner/pi-coding-agent
+RUN npm install -y -g --ignore-scripts @earendil-works/pi-coding-agent
+RUN npm install -y -g agent-browser @opengsd/gsd-browser
 
 RUN agent-browser install --with-deps
 
