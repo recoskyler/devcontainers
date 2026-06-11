@@ -124,7 +124,7 @@ verify_base() {
     done
 
     # Other
-    for cmd in ttyd delta agent-browser claude pi clideck; do
+    for cmd in ttyd delta agent-browser claude pi; do
         check_cmd "$cmd"
     done
 }
