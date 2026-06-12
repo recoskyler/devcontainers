@@ -266,23 +266,10 @@ echo "--- Section 3 complete ---"
 echo ""
 echo "=== Section 4: Android Studio Launch ==="
 
-/opt/android-studio/bin/studio.sh &
-STUDIO_PID=$!
-
-# Give Studio time to start (it is heavy)
-sleep 30
-
-if kill -0 "$STUDIO_PID" 2>/dev/null; then
-    pass "Android Studio is running (PID: $STUDIO_PID)"
-    if [ "$KERNEL_COMPAT" -eq 1 ]; then
-        echo "ADB devices (Studio should see emulator):"
-        adb devices
-    else
-        skip "Studio-emulator connection -- emulator skipped due to kernel incompatibility"
-    fi
-else
-    fail "Android Studio failed to start (PID: $STUDIO_PID exited)"
-fi
+# The full Android Studio IDE is no longer bundled in the image (removed to keep
+# the image slim). Builds/tests use the Android SDK directly. Install the IDE at
+# runtime if GUI development over VNC is required.
+skip "Android Studio launch -- IDE not bundled (use the Android SDK for builds)"
 
 echo "--- Section 4 complete ---"
 

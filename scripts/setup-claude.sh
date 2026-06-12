@@ -23,5 +23,8 @@ npx -y skills add -y --global --all vercel-labs/agent-browser
 npx -y @opengsd/gsd-core@latest --claude --global
 
 # --- Headroom ---
-
-uv tool install "headroom-ai[all]"
+# Install only the extras we use: code analysis (tree-sitter), MCP, and the
+# proxy server. Deliberately omit ml/image/evals/memory/voice/benchmark — those
+# pull torch+CUDA (~2.5GB), onnxruntime/opencv, and sentence-transformers, which
+# bloated every image and exhausted CI runner disk.
+uv tool install "headroom-ai[code,mcp,proxy]"

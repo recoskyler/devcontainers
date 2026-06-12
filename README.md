@@ -211,7 +211,6 @@ Extends the VNC image with Flutter, Rust, and Android tooling.
 - **Rust** toolchain (rustup, rustfmt, clippy, cargo-watch, cargo-edit, cargo-nextest)
 - **Android SDK**: cmdline-tools, platform-tools, build-tools (28.0.3 + 35.0.0), API 35 + 36
 - **Android Emulator** with SwiftShader (AVD: `flutter_pixel7`, Pixel 7, API 35)
-- **Android Studio** Panda 1 (at `/opt/android-studio`)
 - **Chromium** (`CHROME_EXECUTABLE` set for `flutter run -d chrome`)
 - **OpenJDK 21** (headless)
 
