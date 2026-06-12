@@ -133,12 +133,15 @@ RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/sh
     && apt-get update \
     && apt-get -y install --no-install-recommends terraform
 
-# kubectl (Kubernetes apt repo v1.32)
-RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | gpg --dearmor -o /usr/share/keyrings/kubernetes-apt-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /" \
-       | tee /etc/apt/sources.list.d/kubernetes.list \
-    && apt-get update \
-    && apt-get -y install --no-install-recommends kubectl
+# kubectl (official static binary from dl.k8s.io)
+# Avoids the pkgs.k8s.io apt repo, whose Release.key fetch intermittently 403s on
+# CI runners (transient CDN rate-limiting). --retry-all-errors retries 4xx too.
+RUN ARCH=$(dpkg --print-architecture) \
+    && KVER=$(curl -fsSL --retry 5 --retry-all-errors --retry-delay 2 https://dl.k8s.io/release/stable-1.32.txt) \
+    && curl -fsSL --retry 5 --retry-all-errors --retry-delay 2 \
+        "https://dl.k8s.io/release/${KVER}/bin/linux/${ARCH}/kubectl" -o /usr/local/bin/kubectl \
+    && chmod +x /usr/local/bin/kubectl \
+    && kubectl version --client
 
 # ── User setup ───────────────────────────────────────────────────────────────
 
