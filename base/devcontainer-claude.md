@@ -11,7 +11,7 @@ This is a DevContainer running Debian Trixie. You are the `dev` user with passwo
 
 ### CLI Tools
 - `git`, `gh` (GitHub CLI), `delta` (git-delta)
-- `docker`, `docker compose` (Docker CLI + Compose plugin)
+- `docker`, `docker compose` (Docker CLI + Compose plugin — omitted when built with `INSTALL_DOCKER=false`)
 - `aws` (AWS CLI v2), `terraform`, `kubectl`, `stripe`
 - `claude` (Claude Code CLI)
 - `brew` (Homebrew — used for select packages, on `$PATH` via `/home/linuxbrew/.linuxbrew/bin`)
@@ -41,30 +41,6 @@ This is a DevContainer running Debian Trixie. You are the `dev` user with passwo
 ## Working directory
 Default: `/workspace`
 
-## MCP Servers
-
-MCP servers are configured on first shell login via `init-claude-mcp.sh`. Optional servers are only added when their env vars are set.
-
-- `serena` — semantic code analysis (symbols, references, overview)
-- `context7` — library documentation lookup (if CONTEXT7_API_KEY is set)
-- `memory` — persistent memory via Automem (if AUTOMEM_ENDPOINT is set)
-
-## Plugins & Skills
-- GSD (`/gsd:*`) — project management and execution workflow
-- gstack — 28 specialized engineering skills as slash commands (garrytan/gstack)
-- superpowers — brainstorming, TDD, debugging, code review skills
-- everything-claude-code (ECC) — rules installed at `~/.claude/rules/`
-- feature-dev, frontend-design, code-review, commit-commands, pr-review-toolkit
-- hookify, playground, claude-md-management, claude-code-setup
-- ralph-loop, security-guidance
-- explanatory-output-style, learning-output-style
-- typescript-lsp, pyright-lsp, php-lsp, laravel-boost
-- agent-browser skill at `~/.claude/skills/agent-browser/SKILL.md`
-
-## Hooks
-- Context7 suggestion hook — suggests context7 when WebSearch is used (if configured)
-- Ntfy notification hook — sends push notifications on task completion (if configured)
-
 ## Browser Automation
 
 Use `agent-browser` for web automation. Run `agent-browser --help` for all commands.
@@ -78,4 +54,3 @@ Core workflow:
 ## Notes
 - Shell is bash. `/bin/sh` is symlinked to `/bin/bash`.
 - Passwordless sudo is available via `sudo`.
-- When host `~/.claude` is bind-mounted, the entrypoint auto-merges image tooling (plugins, skills, rules, GSD) into the mounted directory. Host files (credentials, settings) are never overwritten.

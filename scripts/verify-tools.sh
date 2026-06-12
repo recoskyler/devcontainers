@@ -124,15 +124,8 @@ verify_base() {
     done
 
     # Other
-    for cmd in ttyd delta agent-browser claude pi clideck; do
+    for cmd in ttyd delta agent-browser claude pi; do
         check_cmd "$cmd"
-    done
-
-    # Claude ecosystem
-    check_file "GSD directory" "/home/dev/.claude/get-shit-done"
-
-    for script in ntfy-hook.sh suggest-context7-hook.sh init-claude-mcp.sh; do
-        check_file "$script" "$HOME/.local/bin/$script"
     done
 }
 

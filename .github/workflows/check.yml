@@ -13,9 +13,20 @@ jobs:
   base:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    name: devcontainer-base${{ matrix.suffix }}
     permissions:
       contents: read
       pull-requests: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - install_docker: true
+            suffix: ""
+            scope: base
+          - install_docker: false
+            suffix: "-nodocker"
+            scope: base-nodocker
 
     steps:
       - name: Checkout
@@ -32,7 +43,9 @@ jobs:
           push: false
           load: true
           tags: devcontainer-base:latest
-          cache-from: type=gha,scope=base
+          build-args: |
+            INSTALL_DOCKER=${{ matrix.install_docker }}
+          cache-from: type=gha,scope=${{ matrix.scope }}
 
       - name: Verify base tools
         run: |
@@ -52,7 +65,7 @@ jobs:
             ICON="❌"
           fi
           {
-            echo "### ${ICON} Tool Verification: base"
+            echo "### ${ICON} Tool Verification: base${{ matrix.suffix }}"
             echo ""
             echo "<details>"
             echo "<summary>Click to expand verification output</summary>"
@@ -69,6 +82,7 @@ jobs:
   variants:
     needs: base
     runs-on: ubuntu-latest
+    name: ${{ matrix.name }}${{ matrix.suffix }}
     timeout-minutes: 30
     permissions:
       contents: read
@@ -80,19 +94,67 @@ jobs:
         include:
           - name: trixie-bun-nvm-uv-claude
             scope: bun
+            base_scope: base
+            install_docker: true
+            suffix: ""
+            build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
+          - name: trixie-bun-nvm-uv-claude
+            scope: bun-nodocker
+            base_scope: base-nodocker
+            install_docker: false
+            suffix: "-nodocker"
             build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
           - name: trixie-php-nvm-uv-claude
             scope: php
+            base_scope: base
+            install_docker: true
+            suffix: ""
+            build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
+          - name: trixie-php-nvm-uv-claude
+            scope: php-nodocker
+            base_scope: base-nodocker
+            install_docker: false
+            suffix: "-nodocker"
             build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
           - name: trixie-rust-nvm-uv-claude
             scope: rust
+            base_scope: base
+            install_docker: true
+            suffix: ""
+            build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
+          - name: trixie-rust-nvm-uv-claude
+            scope: rust-nodocker
+            base_scope: base-nodocker
+            install_docker: false
+            suffix: "-nodocker"
             build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
           - name: trixie-vnc-nvm-uv-claude
             scope: vnc
+            base_scope: base
+            install_docker: true
+            suffix: ""
+            build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
+          - name: trixie-vnc-nvm-uv-claude
+            scope: vnc-nodocker
+            base_scope: base-nodocker
+            install_docker: false
+            suffix: "-nodocker"
             build_contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
           - name: trixie-vnc-flutter-rust-nvm-uv-claude
             scope: flutter
+            base_scope: base
+            install_docker: true
+            suffix: ""
             needs_vnc: true
+            vnc_scope: vnc
+            build_contexts: trixie-vnc-nvm-uv-claude:latest=docker-image://localhost:5000/trixie-vnc-nvm-uv-claude:latest
+          - name: trixie-vnc-flutter-rust-nvm-uv-claude
+            scope: flutter-nodocker
+            base_scope: base-nodocker
+            install_docker: false
+            suffix: "-nodocker"
+            needs_vnc: true
+            vnc_scope: vnc-nodocker
             build_contexts: trixie-vnc-nvm-uv-claude:latest=docker-image://localhost:5000/trixie-vnc-nvm-uv-claude:latest
 
     services:
@@ -104,6 +166,29 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          echo "Disk space before cleanup:"
+          df -h /
+          sudo rm -rf \
+            /usr/local/lib/android \
+            /usr/share/dotnet \
+            /opt/ghc \
+            /usr/local/.ghcup \
+            /usr/share/swift \
+            /usr/local/share/powershell \
+            /usr/local/share/chromium \
+            /usr/local/lib/node_modules \
+            /usr/local/share/boost \
+            /usr/lib/jvm \
+            /opt/hostedtoolcache
+          sudo swapoff -a || true
+          sudo rm -f /mnt/swapfile /swapfile || true
+          sudo docker image prune --all --force >/dev/null 2>&1 || true
+          sudo apt-get clean
+          echo "Disk space after cleanup:"
+          df -h /
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -120,7 +205,9 @@ jobs:
           file: base/Dockerfile
           push: true
           tags: localhost:5000/devcontainer-base:latest
-          cache-from: type=gha,scope=base
+          build-args: |
+            INSTALL_DOCKER=${{ matrix.install_docker }}
+          cache-from: type=gha,scope=${{ matrix.base_scope }}
 
       - name: Rebuild VNC from cache and push to local registry
         if: matrix.needs_vnc
@@ -131,7 +218,9 @@ jobs:
           push: true
           tags: localhost:5000/trixie-vnc-nvm-uv-claude:latest
           build-contexts: devcontainer-base:latest=docker-image://localhost:5000/devcontainer-base:latest
-          cache-from: type=gha,scope=vnc
+          build-args: |
+            INSTALL_DOCKER=${{ matrix.install_docker }}
+          cache-from: type=gha,scope=${{ matrix.vnc_scope }}
 
       - name: Build ${{ matrix.name }}
         uses: docker/build-push-action@v6
@@ -156,7 +245,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          VARIANT="${{ matrix.name }}"
+          VARIANT="${{ matrix.name }}${{ matrix.suffix }}"
           if grep -q "ALL_CHECKS_PASSED" /tmp/verify-output.txt 2>/dev/null; then
             ICON="✅"
           else
