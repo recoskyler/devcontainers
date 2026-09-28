@@ -108,6 +108,11 @@ verify_base() {
     # Python
     check_cmd uv
 
+    # Go
+    for cmd in go gofmt; do
+        check_cmd "$cmd"
+    done
+
     # Build tools
     for cmd in gcc g++ make cmake pkg-config; do
         check_cmd "$cmd"
@@ -124,12 +129,12 @@ verify_base() {
     done
 
     # Other
-    for cmd in ttyd delta agent-browser claude pi clideck; do
+    for cmd in ttyd delta agent-browser claude rtk mnemosyne; do
         check_cmd "$cmd"
     done
 
     # Claude ecosystem
-    check_file "GSD directory" "/home/dev/.claude/get-shit-done"
+    check_file "RTK.md" "$HOME/.claude/RTK.md"
 
     for script in ntfy-hook.sh suggest-context7-hook.sh init-claude-mcp.sh; do
         check_file "$script" "$HOME/.local/bin/$script"

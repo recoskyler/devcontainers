@@ -38,7 +38,7 @@ fi
 mkdir -p "$LIVE"
 
 # Merge directories — cp -rn (no-clobber) so host files are never overwritten
-for dir in plugins skills rules get-shit-done agents; do
+for dir in plugins skills rules agents; do
     if [ -d "$BACKUP/$dir" ]; then
         if [ ! -d "$LIVE/$dir" ]; then
             cp -r "$BACKUP/$dir" "$LIVE/$dir"

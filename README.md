@@ -23,7 +23,7 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
                 context: .
                 dockerfile: Dockerfile
                 args:
-                    NODE_VERSION: '24.12.0'
+                    NODE_VERSION: '24.21.0'
 
             ports:
                 - "0.0.0.0:7681:7681" # TTYD
@@ -160,15 +160,14 @@ All images extend a shared base (`base/Dockerfile` — `debian:trixie`) and run 
 
 ### All images (base)
 
-- **Node.js** via NVM (default: 24.12.0)
+- **Node.js** via NVM (default: 24.21.0)
 - **UV** (Python package manager)
-- **Claude Code** CLI + plugins (ECC, Superpowers, official plugin suite)
-- **MCP servers**: Serena, Context7
-- **GSD** — Get Shit Done coding workflow (Claude Code via [get-shit-done-cc](https://github.com/gsd-build/get-shit-done-cc), Pi via [gsd-pi](https://github.com/gsd-build/gsd-2))
-- **MemPalace** — local AI memory; mines projects and conversations into a searchable palace, no API key required ([MemPalace/mempalace](https://github.com/MemPalace/mempalace))
-- **Graphify** — knowledge-graph skill; turns any folder of code, docs, papers, images, or videos into a queryable graph ([safishamsi/graphify](https://github.com/safishamsi/graphify))
+- **Go** (default: 1.27.1, `GO_VERSION` build arg)
+- **Claude Code** CLI + plugins: [mattpocock-skills](https://github.com/mattpocock/skills), playground, typescript-lsp, pyright-lsp, php-lsp
+- **MCP servers**: Mnemosyne, Context7
+- **RTK** — token-saving CLI proxy; global Claude Code hook preconfigured ([rtk-ai/rtk](https://github.com/rtk-ai/rtk))
+- **Mnemosyne** — local SQLite-backed persistent memory MCP server; embedding model pre-fetched, data in `~/.claude/mnemosyne` ([mnemosyne-oss/mnemosyne](https://github.com/mnemosyne-oss/mnemosyne))
 - **Agent Browser** + Chrome
-- **gstack** — 28 specialized Claude Code engineering skills ([garrytan/gstack](https://github.com/garrytan/gstack))
 - **Bun** runtime (`bun`, `bunx`)
 - **Docker** CLI + Compose plugin (`docker`, `docker compose`) — mount the host socket to use; works without `sudo` (the entrypoint automatically matches the socket's GID)
 - **CLI tools**: git, curl, wget, vim, nano, jq, tmux, xclip, openssh-client, gnupg, cmake, less, unzip, gh, pnpm, tsx
@@ -180,8 +179,6 @@ All images extend a shared base (`base/Dockerfile` — `debian:trixie`) and run 
 - **ttyd** (web terminal)
 - **Database clients**: postgresql-client, default-mysql-client, redis-tools
 - **ntfy** notification hooks (Notification + Stop events)
-- **pi** — minimal terminal coding harness, with `pi-agent-browser` for browser automation
-- **CliDeck** — one dashboard for all your AI coding agents
 
 ### Bun (`trixie-bun-nvm-uv-claude`)
 
@@ -220,7 +217,8 @@ Extends the VNC image with Flutter, Rust, and Android tooling.
 
 | Argument | Default | Description |
 |----------|---------|-------------|
-| `NODE_VERSION` | `24.12.0` | Node.js version installed via NVM |
+| `NODE_VERSION` | `24.21.0` | Node.js version installed via NVM |
+| `GO_VERSION` | `1.27.1` | Go version installed to `/usr/local/go` |
 
 ## Runtime Environment Variables
 
@@ -236,7 +234,7 @@ Secret-dependent MCP servers and ntfy hooks are configured at **runtime** (first
 
 ## Host Credentials
 
-Mount host directories to forward credentials and settings into the container. The entrypoint automatically merges image-built tooling (plugins, skills, rules, GSD) with your host files — nothing is lost.
+Mount host directories to forward credentials and settings into the container. The entrypoint automatically merges image-built tooling (plugins, skills, rules, agents) with your host files — nothing is lost.
 
 | Host Path | Container Path | Purpose |
 |-----------|---------------|---------|
@@ -247,7 +245,7 @@ Mount host directories to forward credentials and settings into the container. T
 | `~/.config/github-copilot` | `/home/dev/.config/github-copilot:ro` | GitHub Copilot OAuth tokens |
 | `~/.gnupg` | `/home/dev/.gnupg:ro` | GPG keys for signed commits |
 
-> **How the `~/.claude` merge works:** At build time, the image snapshots all tooling to `/opt/devcontainer-claude/`. When a host `~/.claude` bind-mount is detected at container start, the entrypoint copies missing tooling (plugins, skills, rules, GSD) into the mounted directory without overwriting host files. The image's `CLAUDE.md` is appended if the host version lacks the DevContainer section. The merge is idempotent — container restarts won't duplicate content.
+> **How the `~/.claude` merge works:** At build time, the image snapshots all tooling to `/opt/devcontainer-claude/`. When a host `~/.claude` bind-mount is detected at container start, the entrypoint copies missing tooling (plugins, skills, rules, agents) into the mounted directory without overwriting host files. The image's `CLAUDE.md` is appended if the host version lacks the DevContainer section. The merge is idempotent — container restarts won't duplicate content. On first shell login, the RTK hook and Mnemosyne MCP server are (re-)registered if the host config lacks them.
 
 > **Note:** Use `:ro` (read-only) for credentials you don't want the container to modify. `~/.claude` is mounted read-write because Claude Code writes memory, session state, and settings at runtime.
 
@@ -280,7 +278,7 @@ Build locally:
 ```bash
 # Build base first (NODE_VERSION is a base ARG)
 docker build -t devcontainer-base:latest \
-  --build-arg NODE_VERSION=24.12.0 \
+  --build-arg NODE_VERSION=24.21.0 \
   -f base/Dockerfile .
 
 # Then build a variant
