@@ -23,7 +23,7 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
                 context: .
                 dockerfile: Dockerfile
                 args:
-                    NODE_VERSION: '24.12.0'
+                    NODE_VERSION: '24.21.0'
 
             ports:
                 - "0.0.0.0:7681:7681" # TTYD
@@ -33,8 +33,6 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
                 - default
 
             environment:
-                - AUTOMEM_ENDPOINT=your-endpoint
-                - AUTOMEM_API_KEY=your-key
                 - NTFY_URL=https://ntfy.sh/your-topic
                 - NTFY_TOKEN=your-token
                 - ENABLE_TOOL_SEARCH=true
@@ -162,11 +160,12 @@ Every image is published in two flavors: the default tag includes the Docker CLI
 
 ### All images (base)
 
-- **Node.js** via NVM (default: 24.12.0)
+- **Node.js** via NVM (default: 24.21.0)
 - **UV** (Python package manager)
-- **Claude Code** CLI + plugins (ECC, Superpowers, official plugin suite)
-- **MCP servers**: Automem
-- **GSD** (Git Ship Done Core + Browser)
+- **Go** (default: 1.27.1, `GO_VERSION` build arg)
+- **Claude Code** CLI + plugins: [mattpocock-skills](https://github.com/mattpocock/skills), playground, typescript-lsp, pyright-lsp, php-lsp
+- **RTK** — token-saving CLI proxy; global Claude Code hook preconfigured ([rtk-ai/rtk](https://github.com/rtk-ai/rtk))
+- **Mnemosyne** — local SQLite-backed persistent memory MCP server; embedding model pre-fetched, data in `~/.claude/mnemosyne` ([mnemosyne-oss/mnemosyne](https://github.com/mnemosyne-oss/mnemosyne))
 - **Agent Browser** + Chrome
 - **Bun** runtime (`bun`, `bunx`)
 - **Docker** CLI + Compose plugin (`docker`, `docker compose`) — mount the host socket to use; works without `sudo` (the entrypoint automatically matches the socket's GID). Optional: build with `--build-arg INSTALL_DOCKER=false` to omit it (see [Build Arguments](#build-arguments))
@@ -179,8 +178,6 @@ Every image is published in two flavors: the default tag includes the Docker CLI
 - **ttyd** (web terminal)
 - **Database clients**: postgresql-client, default-mysql-client, redis-tools
 - **ntfy** notification hooks (Notification + Stop events)
-- **pi** a minimal terminal coding harness
-- **CliDeck** one dashboard for all your AI coding agents
 
 ### Bun (`trixie-bun-nvm-uv-claude`)
 
@@ -218,23 +215,49 @@ Extends the VNC image with Flutter, Rust, and Android tooling.
 
 | Argument | Default | Description |
 |----------|---------|-------------|
-| `NODE_VERSION` | `24.12.0` | Node.js version installed via NVM |
+| `NODE_VERSION` | `24.21.0` | Node.js version installed via NVM |
+| `GO_VERSION` | `1.27.1` | Go version installed to `/usr/local/go` |
 | `INSTALL_DOCKER` | `true` | Install the Docker CLI + Compose plugin (Docker-outside-of-Docker). Set to `false` to omit them. |
 
 > `INSTALL_DOCKER` is defined on the base image, so it applies to every variant. Pass it when building the base (variants inherit the result via their `FROM`). When set to `false`, no Docker CLI is installed; the `docker` group and socket-fix entrypoint remain but are inert unless a host socket is mounted. CI publishes both flavors for every image: a Docker-enabled image (`:latest`) and a no-docker image (`:latest-nodocker`).
 
 ## Runtime Environment Variables
 
-Secret-dependent MCP servers and ntfy hooks are configured at **runtime** (first shell login) via environment variables. Pass these in your compose `environment` section or via `docker run -e`.
+The ntfy hooks are configured at **runtime** (first shell login) via environment variables. Pass these in your compose `environment` section or via `docker run -e`. The same login step (re-)registers the RTK hook and the Mnemosyne MCP server if a mounted `~/.claude` lacks them.
 
 | Variable | Description |
 |----------|-------------|
-| `AUTOMEM_ENDPOINT` | [Automem](https://github.com/verygoodplugins/mcp-automem) MCP server endpoint URL (skipped if empty) |
-| `AUTOMEM_API_KEY` | [Automem](https://github.com/verygoodplugins/mcp-automem) MCP server API key (skipped if empty) |
 | `NTFY_URL` | [ntfy](https://ntfy.sh) server/topic URL for notification hooks (skipped if empty) |
 | `NTFY_TOKEN` | [ntfy](https://ntfy.sh) authentication token for notification hooks (skipped if empty) |
 
-> Optional MCP servers and ntfy hooks are only configured when their corresponding environment variables are set.
+> ntfy hooks are only configured when their corresponding environment variables are set.
+
+## Optional: Headroom proxy
+
+[Headroom](https://github.com/headroomlabs-ai/headroom) compresses LLM traffic (tool output, JSON, code) before it reaches the API. It is not bundled in the images; run it as a sidecar service and point Claude Code at it via `ANTHROPIC_BASE_URL`.
+
+Add to `compose.yml`:
+
+```yaml
+services:
+    app:
+        # ...existing config...
+        environment:
+            # Route Claude Code through the Headroom sidecar (remove to talk to Anthropic directly)
+            - ANTHROPIC_BASE_URL=http://headroom:8787
+        depends_on:
+            - headroom
+
+    # Optional: context-compression proxy for Claude Code
+    headroom:
+        image: ghcr.io/headroomlabs-ai/headroom:latest
+        command: ["--host", "0.0.0.0", "--port", "8787"]
+        restart: unless-stopped
+        networks:
+            - default
+```
+
+> The proxy is only reachable on the compose network (no `ports:` needed). Remove `ANTHROPIC_BASE_URL` and the `headroom` service to disable it.
 
 ## CI/CD
 
@@ -265,7 +288,7 @@ Build locally:
 ```bash
 # Build base first (NODE_VERSION is a base ARG)
 docker build -t devcontainer-base:latest \
-  --build-arg NODE_VERSION=24.12.0 \
+  --build-arg NODE_VERSION=24.21.0 \
   -f base/Dockerfile .
 
 # Then build a variant
@@ -285,8 +308,6 @@ Then run with your API keys as environment variables:
 
 ```bash
 docker run -it \
-  -e AUTOMEM_ENDPOINT=your-endpoint \
-  -e AUTOMEM_API_KEY=your-key \
   -e NTFY_URL=https://ntfy.sh/your-topic \
   -e NTFY_TOKEN=your-token \
   trixie-bun-nvm-uv-claude

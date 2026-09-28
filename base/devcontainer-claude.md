@@ -8,12 +8,14 @@ This is a DevContainer running Debian Trixie. You are the `dev` user with passwo
 - Node.js via NVM — `nvm`, `node`, `npm`, `tsx`, `pnpm`
 - Python 3 — `python3`, `pip`, `uv`
 - Bun — `bun`, `bunx`
+- Go — `go`, `gofmt` (`GOPATH=~/go`, `~/go/bin` on `$PATH`)
 
 ### CLI Tools
 - `git`, `gh` (GitHub CLI), `delta` (git-delta)
 - `docker`, `docker compose` (Docker CLI + Compose plugin — omitted when built with `INSTALL_DOCKER=false`)
 - `aws` (AWS CLI v2), `terraform`, `kubectl`, `stripe`
 - `claude` (Claude Code CLI)
+- `rtk` — token-saving CLI proxy; a PreToolUse hook rewrites Bash commands to `rtk <cmd>` automatically. `rtk gain` shows savings, `rtk proxy <cmd>` bypasses filtering
 - `brew` (Homebrew — used for select packages, on `$PATH` via `/home/linuxbrew/.linuxbrew/bin`)
 
 ### Search & Productivity
@@ -40,6 +42,14 @@ This is a DevContainer running Debian Trixie. You are the `dev` user with passwo
 
 ## Working directory
 Default: `/workspace`
+
+## MCP Servers
+- `mnemosyne` — local persistent memory (`mnemosyne_remember`, `mnemosyne_recall`, `mnemosyne_forget`); SQLite data in `~/.claude/mnemosyne`
+
+## Plugins & Skills
+- mattpocock-skills — grilling, spec/ticket flows, TDD, code review, domain modelling
+- playground, typescript-lsp, pyright-lsp, php-lsp
+- agent-browser skill
 
 ## Browser Automation
 

@@ -172,7 +172,7 @@ ENV NVM_DIR=/usr/local/nvm
 RUN mkdir -p $NVM_DIR \
     && curl --silent -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 
-ARG NODE_VERSION=24.12.0
+ARG NODE_VERSION=24.21.0
 
 RUN source $NVM_DIR/nvm.sh \
     && nvm install ${NODE_VERSION} \
@@ -184,6 +184,15 @@ ENV PATH=$NVM_DIR/versions/node/v${NODE_VERSION}/bin:$PATH
 
 RUN node -v && npm -v \
     && npm install -g npm@latest tsx pnpm
+
+# ── Go ───────────────────────────────────────────────────────────────────────
+
+ARG GO_VERSION=1.27.1
+
+RUN ARCH=$(dpkg --print-architecture) \
+    && curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-${ARCH}.tar.gz" | tar -C /usr/local -xz
+
+ENV PATH=/usr/local/go/bin:/home/dev/go/bin:$PATH
 
 # ── ttyd (built from source) ────────────────────────────────────────────────
 
@@ -226,14 +235,18 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 RUN curl -fsSL https://bun.sh/install | bash
 ENV PATH="/home/dev/.bun/bin:${PATH}"
 
+# RTK (token-saving CLI proxy — Claude Code hook set up in setup-claude.sh)
+RUN curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
+
+# Mnemosyne (local persistent memory MCP server)
+# Data lives under ~/.claude so memories persist with a host ~/.claude mount
+ENV MNEMOSYNE_DATA_DIR=/home/dev/.claude/mnemosyne
+RUN UV_LINK_MODE=copy uv tool install --no-cache "mnemosyne-memory[mcp,embeddings]"
+
 # Claude Plugins, MCP, Hooks
-ARG AUTOMEM_ENDPOINT=""
-ARG AUTOMEM_API_KEY=""
 ARG NTFY_URL=""
 ARG NTFY_TOKEN=""
 
-ENV AUTOMEM_ENDPOINT=${AUTOMEM_ENDPOINT}
-ENV AUTOMEM_API_KEY=${AUTOMEM_API_KEY}
 ENV NTFY_URL=${NTFY_URL}
 ENV NTFY_TOKEN=${NTFY_TOKEN}
 
@@ -269,8 +282,7 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 # agent-browser
 WORKDIR /workspace
 
-RUN npm install -y -g --ignore-scripts @earendil-works/pi-coding-agent
-RUN npm install -y -g agent-browser @opengsd/gsd-browser
+RUN npm install -y -g agent-browser
 
 RUN agent-browser install --with-deps
 
