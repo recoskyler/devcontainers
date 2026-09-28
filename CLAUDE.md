@@ -19,7 +19,6 @@ This is a project containing pre-configured Dockerfiles for building and hosting
   - scripts
     - setup-claude.sh
     - ntfy-hook.sh
-    - suggest-context7-hook.sh
     - init-claude-mcp.sh
   - .github
     - workflows
