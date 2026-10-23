@@ -8,7 +8,11 @@ ENV LC_ALL=C.UTF-8
 
 # ── System packages (apt-get) ────────────────────────────────────────────────
 
+# Bump to invalidate the GHA layer cache and pull fresh Debian security updates
+ARG APT_REFRESH=2026-10-23
+
 RUN apt-get update \
+    && apt-get -y upgrade \
     && apt-get -y install --no-install-recommends \
     apt-transport-https \
     bash \
@@ -170,9 +174,9 @@ RUN echo "dev ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 ENV NVM_DIR=/usr/local/nvm
 
 RUN mkdir -p $NVM_DIR \
-    && curl --silent -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+    && curl --silent -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh | bash
 
-ARG NODE_VERSION=24.12.0
+ARG NODE_VERSION=24.22.1
 
 RUN source $NVM_DIR/nvm.sh \
     && nvm install ${NODE_VERSION} \
