@@ -23,7 +23,7 @@ Docker-based dev containers with Claude Code, MCP servers, and common tooling pr
                 context: .
                 dockerfile: Dockerfile
                 args:
-                    NODE_VERSION: '24.21.0'
+                    NODE_VERSION: '24.22.1'
 
             ports:
                 - "0.0.0.0:7681:7681" # TTYD
@@ -160,7 +160,7 @@ Every image is published in two flavors: the default tag includes the Docker CLI
 
 ### All images (base)
 
-- **Node.js** via NVM (default: 24.21.0)
+- **Node.js** via NVM (default: 24.22.1)
 - **UV** (Python package manager)
 - **Go** (default: 1.27.1, `GO_VERSION` build arg)
 - **Claude Code** CLI + plugins: [mattpocock-skills](https://github.com/mattpocock/skills), playground, typescript-lsp, pyright-lsp, php-lsp
@@ -215,8 +215,7 @@ Extends the VNC image with Flutter, Rust, and Android tooling.
 
 | Argument | Default | Description |
 |----------|---------|-------------|
-| `NODE_VERSION` | `24.21.0` | Node.js version installed via NVM |
-| `GO_VERSION` | `1.27.1` | Go version installed to `/usr/local/go` |
+| `NODE_VERSION` | `24.22.1` | Node.js version installed via NVM |
 | `INSTALL_DOCKER` | `true` | Install the Docker CLI + Compose plugin (Docker-outside-of-Docker). Set to `false` to omit them. |
 
 > `INSTALL_DOCKER` is defined on the base image, so it applies to every variant. Pass it when building the base (variants inherit the result via their `FROM`). When set to `false`, no Docker CLI is installed; the `docker` group and socket-fix entrypoint remain but are inert unless a host socket is mounted. CI publishes both flavors for every image: a Docker-enabled image (`:latest`) and a no-docker image (`:latest-nodocker`).
@@ -288,7 +287,7 @@ Build locally:
 ```bash
 # Build base first (NODE_VERSION is a base ARG)
 docker build -t devcontainer-base:latest \
-  --build-arg NODE_VERSION=24.21.0 \
+  --build-arg NODE_VERSION=24.22.1 \
   -f base/Dockerfile .
 
 # Then build a variant
