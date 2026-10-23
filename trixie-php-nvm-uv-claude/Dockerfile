@@ -29,6 +29,10 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Fail the build if trixie-security did not deliver the patched PHP
+RUN dpkg --compare-versions "$(dpkg-query -W -f='${Version}' php8.4-cli)" ge 8.4.27-1~deb13u1 \
+    || { echo "php8.4-cli is older than 8.4.27 (CVE fixes missing)" >&2; exit 1; }
+
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
