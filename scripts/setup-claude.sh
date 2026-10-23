@@ -6,10 +6,14 @@ CLAUDE="$HOME/.local/bin/claude"
 # --- Claude Plugins ---
 
 if [ -x "$CLAUDE" ]; then
-    $CLAUDE plugin marketplace add pcvelz/superpowers
-    $CLAUDE plugin install superpowers-extended-cc@superpowers-extended-cc-marketplace
-
     $CLAUDE plugin marketplace add anthropics/claude-plugins-official
+    $CLAUDE plugin install playground@claude-plugins-official
+    $CLAUDE plugin install typescript-lsp@claude-plugins-official
+    $CLAUDE plugin install pyright-lsp@claude-plugins-official
+    $CLAUDE plugin install php-lsp@claude-plugins-official
+    $CLAUDE plugin install mattpocock-skills@claude-plugins-official
+
+    $CLAUDE mcp add --transport stdio -s user mnemosyne -- mnemosyne mcp
 else
     echo "WARNING: Claude CLI not found at $CLAUDE — skipping plugin setup"
 fi
@@ -18,13 +22,11 @@ fi
 
 npx -y skills add -y --global --all vercel-labs/agent-browser
 
-# --- GSD ---
+# --- RTK (global Claude Code hook + RTK.md) ---
 
-npx -y @opengsd/gsd-core@latest --claude --global
+rtk init -g --auto-patch </dev/null
 
-# --- Headroom ---
-# Install only the extras we use: code analysis (tree-sitter), MCP, and the
-# proxy server. Deliberately omit ml/image/evals/memory/voice/benchmark — those
-# pull torch+CUDA (~2.5GB), onnxruntime/opencv, and sentence-transformers, which
-# bloated every image and exhausted CI runner disk.
-uv tool install "headroom-ai[code,mcp,proxy]"
+# --- Mnemosyne: pre-fetch embedding model so first recall works offline ---
+
+MNEMOSYNE_DATA_DIR=/tmp/mnemosyne-warmup mnemosyne store "warmup" >/dev/null
+rm -rf /tmp/mnemosyne-warmup

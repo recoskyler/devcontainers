@@ -9,14 +9,14 @@ CLAUDE_JSON="$HOME/.claude.json"
 
 [ -f "$CLAUDE_JSON" ] || echo '{}' > "$CLAUDE_JSON"
 
-# --- Automem MCP ---
-if [ -n "$AUTOMEM_ENDPOINT" ] && [ -n "$AUTOMEM_API_KEY" ]; then
-    if ! grep -q '"memory"' "$CLAUDE_JSON" 2>/dev/null; then
-        $CLAUDE mcp add --transport stdio -s user \
-            --env="AUTOMEM_ENDPOINT=$AUTOMEM_ENDPOINT" \
-            --env="AUTOMEM_API_KEY=$AUTOMEM_API_KEY" \
-            memory -- npx -y @verygoodplugins/mcp-automem
-    fi
+# --- Mnemosyne MCP ---
+if ! grep -q '"mnemosyne"' "$CLAUDE_JSON" 2>/dev/null; then
+    $CLAUDE mcp add --transport stdio -s user mnemosyne -- mnemosyne mcp >/dev/null
+fi
+
+# --- RTK hook (re-applied when a host ~/.claude mount lacks it) ---
+if command -v rtk >/dev/null 2>&1 && ! rtk init --show 2>/dev/null | grep -q '\[ok\] Hook'; then
+    rtk init -g --auto-patch </dev/null >/dev/null
 fi
 
 # --- Ntfy Hooks ---
